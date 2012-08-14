@@ -1,4 +1,5 @@
-tcuilitelib
+TCUI Lite
 ===========
 
-Fast and lightweight J2ME UI toolkit. To build it, use NetBeans.
+Fast and lightweight J2ME UI toolkit. 
+To build it, use NetBeans.
