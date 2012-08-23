@@ -2,6 +2,7 @@ package com.tomclaw.tcuilite;
 
 import com.tomclaw.utils.DrawUtil;
 import com.tomclaw.utils.StringUtil;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 
@@ -13,14 +14,18 @@ import javax.microedition.lcdui.Image;
 public class Label extends PaneObject {
 
   public String caption = "";
-  private String[] strings = new String[ 0 ];
   public int x = 0;
   public int y = 0;
   public int width = 0;
   public int height = 0;
-  public boolean isTitle = false;
-  public boolean isHeader = false;
   public Image image = null;
+  /** 
+   * Private fields 
+   */
+  private String[] strings = new String[ 0 ];
+  private boolean isTitle = false;
+  private boolean isHeader = false;
+  private boolean isBold = false;
   /**
    * Runtime
    */
@@ -64,16 +69,14 @@ public class Label extends PaneObject {
       g.setColor( actInnerLight );
       g.drawRect( x + 1, y + 1, width - 2, height - 2 );
     }
-    g.setFont( Theme.font );
+    g.setFont( getFont() );
     g.setColor( isHeader ? headerForeColor : foreColor );
-    // g.drawString(caption, x + 2 + Theme.upSize, y + 2 + height / 2 - Theme.font.getHeight() / 2, Graphics.TOP | Graphics.LEFT);
     if ( image != null ) {
       g.drawImage( image, x + Theme.upSize, y + height / 2, Graphics.VCENTER | Graphics.LEFT );
     }
     for ( int c = 0; c < strings.length; c++ ) {
-      // x + 2 + Theme.upSize, y + 2 + height / 2 - Theme.font.getHeight() / 2
       g.drawString( strings[c], x + 2 + Theme.upSize + ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ),
-              y + 2 + ( image == null ? Theme.upSize : ( height / 2 - ( Theme.font.getHeight() + interlineheight ) * strings.length / 2 ) ) + c * ( Theme.font.getHeight() + interlineheight ), Graphics.TOP | Graphics.LEFT );
+              y + 2 + ( image == null ? Theme.upSize : ( height / 2 - ( getFont().getHeight() + interlineheight ) * strings.length / 2 ) ) + c * ( getFont().getHeight() + interlineheight ), Graphics.TOP | Graphics.LEFT );
     }
   }
 
@@ -124,7 +127,7 @@ public class Label extends PaneObject {
 
   public int getHeight() {
     height = Math.max( ( image != null ? Theme.upSize * 2 + image.getHeight() : 0 ),
-            Theme.font.getHeight() + Theme.upSize * 2 + 4 + ( strings.length - 1 ) * ( Theme.font.getHeight() + interlineheight ) );
+            getFont().getHeight() + Theme.upSize * 2 + 4 + ( strings.length - 1 ) * ( getFont().getHeight() + interlineheight ) );
     return height;
   }
 
@@ -132,12 +135,31 @@ public class Label extends PaneObject {
   }
 
   public final void setCaption( String text ) {
-    this.caption = text;
-    strings = StringUtil.wrapText( text, width - ( Theme.upSize + 4 ) * 2 - ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ), Theme.font );
+    caption = text;
+    updateCaption();
   }
 
   public void updateCaption() {
-    strings = StringUtil.wrapText( caption, width - ( Theme.upSize + 4 ) * 2 - ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ), Theme.font );
+    strings = StringUtil.wrapText( caption, width - ( Theme.upSize + 4 ) * 2 - ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ), getFont() );
+  }
+  
+  private Font getFont() {
+    return isBold ? Theme.font : Theme.titleFont;
+  }
+  
+  public void setTitle(boolean isTitle) {
+    this.isTitle = isTitle;
+    updateCaption();
+  }
+  
+  public void setHeader(boolean isHeader) {
+    this.isHeader = isHeader;
+    updateCaption();
+  }
+  
+  public void setBold(boolean isBold) {
+    this.isBold = isBold;
+    updateCaption();
   }
 
   public String getStringValue() {
