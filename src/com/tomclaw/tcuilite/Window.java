@@ -141,9 +141,7 @@ public class Window {
       }
     }
     if ( Screen.getExtGameAct( keyCode ) == Screen.KEY_CODE_LEFT_MENU ) {
-      /**
-       * Inverting left trigger
-       */
+      /** Inverting left trigger **/
       if ( soft.isLeftPressed || !( soft.isLeftPressed || soft.isRightPressed ) ) {
         if ( !soft.isLeftPressed ) {
           soft.leftSoft.actionPerformed();
@@ -153,9 +151,7 @@ public class Window {
         }
       }
     } else if ( Screen.getExtGameAct( keyCode ) == Screen.KEY_CODE_RIGHT_MENU ) {
-      /**
-       * Inverting right trigger
-       */
+      /** Inverting right trigger **/
       if ( soft.isRightPressed || !( soft.isLeftPressed || soft.isRightPressed ) ) {
         if ( !soft.isRightPressed ) {
           soft.rightSoft.actionPerformed();
@@ -225,9 +221,7 @@ public class Window {
       return dialog.pointerDragged( x, y );
     }
     if ( soft != null && ( soft.isLeftPressed || soft.isRightPressed ) ) {
-      /**
-       * Soft is pressed down
-       */
+      /** Soft is pressed down **/
       return soft.pointerDragged( x, y );
     }
     return gObject.pointerDragged( x, y );
@@ -243,13 +237,9 @@ public class Window {
     }
     if ( soft != null && ( x >= Soft.getX() && y >= Soft.getY()
         && x < ( Soft.getX() + Soft.getWidth() ) && y < ( Soft.getY() + soft.getHeight() ) ) ) {
-      /**
-       * Pointer pressed on soft
-       */
+      /** Pointer pressed on soft **/
       if ( x <= ( Soft.getX() + Soft.getWidth() / 2 ) ) {
-        /**
-         * Left soft is pressed (inverting trigger)
-         */
+        /** Left soft is pressed (inverting trigger) **/
         if ( soft.isLeftPressed || !( soft.isLeftPressed || soft.isRightPressed ) ) {
           if ( !soft.isLeftPressed ) {
             soft.leftSoft.actionPerformed();
@@ -257,9 +247,7 @@ public class Window {
           soft.setLeftSoftPressed( !soft.isLeftPressed );
         }
       } else {
-        /**
-         * Right soft is pressed (inverting trigger)
-         */
+        /** Right soft is pressed (inverting trigger) **/
         if ( soft.isRightPressed || !( soft.isLeftPressed || soft.isRightPressed ) ) {
           if ( !soft.isRightPressed ) {
             soft.rightSoft.actionPerformed();
@@ -283,9 +271,7 @@ public class Window {
       return;
     }
     if ( soft != null && ( soft.isLeftPressed || soft.isRightPressed ) ) {
-      /**
-       * If any soft is already pressed down
-       */
+      /** If any soft is already pressed down **/
       if ( soft.isLeftPressed && soft.leftSoft.isEmpty() ) {
         soft.setLeftSoftPressed( false );
       } else if ( soft.isRightPressed && soft.rightSoft.isEmpty() ) {

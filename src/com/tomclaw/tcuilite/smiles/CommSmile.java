@@ -9,9 +9,13 @@ import javax.microedition.lcdui.Image;
  */
 public interface CommSmile {
 
-    public Image getFrameARGB(int frameIndex);
-    public int getWidth();
-    public int getHeight();
-    public int[] getFramesDelay();
-    public String[] getSmileDefinitions();
+  public Image getFrameARGB( int frameIndex );
+
+  public int getWidth();
+
+  public int getHeight();
+
+  public int[] getFramesDelay();
+
+  public String[] getSmileDefinitions();
 }

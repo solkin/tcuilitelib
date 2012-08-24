@@ -90,9 +90,6 @@ public class Popup implements GObject {
     items.addElement( popupItem );
   }
 
-  /*
-   * public void repaint(Image image) { repaint(image.getGraphics()); }
-   */
   public void repaintBackground( Graphics g, int paintX, int paintY ) {
     if ( Settings.MENU_DRAW_ALPHABACK ) {
       g.drawRGB( rgbData, 0, width + shadowSize * 2, paintX + x - shadowSize, paintY + y - shadowSize - 1, width + shadowSize * 2, height + shadowSize * 2 + 2, true );
@@ -168,10 +165,7 @@ public class Popup implements GObject {
         g.drawString( templistItem.title, paintX + x + 1 + Theme.upSize + 1 + imageOffset, paintY + y + 1 + c * itemHeight - yOffset + Theme.upSize + 1, Graphics.TOP | Graphics.LEFT );
       }
     }
-
-    /**
-     * Scroll
-     */
+    /** Scroll **/
     if ( repaintScrollWidth > 0 ) {
       if ( !Settings.MENU_DRAW_ALPHABACK ) {
         g.setColor( scrollBack );
@@ -197,9 +191,7 @@ public class Popup implements GObject {
         g.drawLine( paintX + x + width - repaintScrollWidth - 1, paintY + y, paintX + x + width - repaintScrollWidth - 1, paintY + y + height - 1 );
       }
     }
-    /**
-     * Border
-     */
+    /** Border **/
     if ( !Settings.MENU_DRAW_ALPHABACK ) {
       g.setColor( scrollBorder );
       g.drawRect( paintX + x, paintY + y, width, height );
@@ -217,9 +209,7 @@ public class Popup implements GObject {
   }
 
   public void prepareBackground() {
-    /**
-     * Shadows
-     */
+    /** Shadows **/
     if ( Settings.MENU_DRAW_ALPHABACK ) {
       int fullWidth = ( this.width + shadowSize * 2 );
       int fullHeight = ( this.height + shadowSize * 2 ) + 2;
@@ -243,9 +233,7 @@ public class Popup implements GObject {
   }
 
   public void drawShadow( Graphics g, int paintX, int paintY ) {
-    /**
-     * Shadows
-     */
+    /** Shadows **/
     int color;
     for ( int c = 0; c <= shadowSize; c++ ) {
       color = ( shadowColorTo + ( shadowColorFrom - shadowColorTo ) * ( shadowSize - c ) / shadowSize ) << 24;

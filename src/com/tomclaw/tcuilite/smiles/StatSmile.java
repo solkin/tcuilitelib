@@ -9,26 +9,26 @@ import javax.microedition.lcdui.Image;
  */
 public class StatSmile implements CommSmile {
 
-    public Image image;
-    public String[] smileDefinitions;
+  public Image image;
+  public String[] smileDefinitions;
 
-    public Image getFrameARGB(int frameIndex) {
-        return image;
-    }
+  public Image getFrameARGB( int frameIndex ) {
+    return image;
+  }
 
-    public int getWidth() {
-        return image.getWidth();
-    }
+  public int getWidth() {
+    return image.getWidth();
+  }
 
-    public int getHeight() {
-        return image.getHeight();
-    }
+  public int getHeight() {
+    return image.getHeight();
+  }
 
-    public int[] getFramesDelay() {
-        return null;
-    }
+  public int[] getFramesDelay() {
+    return null;
+  }
 
-    public String[] getSmileDefinitions(){
-        return smileDefinitions;
-    }
+  public String[] getSmileDefinitions() {
+    return smileDefinitions;
+  }
 }

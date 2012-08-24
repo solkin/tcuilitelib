@@ -177,7 +177,7 @@ public class Screen extends Canvas {
   }
 
   /**
-   * paint
+   * Paint
    */
   public void paint( Graphics g ) {
     try {
@@ -489,16 +489,12 @@ public class Screen extends Canvas {
         return;
       }
       if ( System.currentTimeMillis() != prevTime ) {
-        /**
-         * Pixel / second
-         */
+        /** Pixel / second **/
         actionSpeedX = ( int ) ( 1000 * ( x - prevTouchX ) / ( System.currentTimeMillis() - prevTime ) );
         actionSpeedY = ( int ) ( 1000 * ( y - prevTouchY ) / ( System.currentTimeMillis() - prevTime ) );
       }
       if ( !isSlideMode && !isDragAccepted ) {
-        /**
-         * There was no drag
-         */
+        /** There was no drag **/
         if ( isSlideMode ) {
           new Thread() {
 
@@ -581,16 +577,12 @@ public class Screen extends Canvas {
     int cycleFinl;
     boolean isSlideForward;
     if ( Math.abs( x_pointValue - x_pointStart ) > getWidth() / 2 ) {
-      /**
-       * Must cycle to help user
-       */
+      /** Must cycle to help user **/
       cycleStart = directionLeft ? 0 : x_pointValue - x_pointStart;
       cycleFinl = ( directionLeft ? getWidth() - ( x_pointStart - x_pointValue ) : getWidth() );
       isSlideForward = true;
     } else {
-      /**
-       * Must cycle back
-       */
+      /** Must cycle back **/
       cycleStart = directionLeft ? x_pointValue : x_pointStart;
       cycleFinl = ( directionLeft ? x_pointStart : x_pointValue );
       isSlideForward = false;

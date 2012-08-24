@@ -144,7 +144,7 @@ public class Label extends PaneObject {
   }
   
   private Font getFont() {
-    return isBold ? Theme.font : Theme.titleFont;
+    return isBold ? Theme.titleFont : Theme.font;
   }
   
   public void setTitle(boolean isTitle) {

@@ -7,7 +7,7 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.Sprite;
 
 /**
- * Solkin Igor Viktorovich, TomClaw Software, 2003-2010
+ * Solkin Igor Viktorovich, TomClaw Software, 2003-2012
  * http://www.tomclaw.com/
  * @author Solkin
  */
@@ -47,8 +47,6 @@ public class Splitter {
       /** Cutting images **/
       for ( int c = 0; c < imageGroup.images.length; c++ ) {
         imageGroup.images[c] = Image.createImage( tempImage, c * imageGroup.size, 0, imageGroup.size, imageGroup.size, Sprite.TRANS_NONE );
-        // imageGroup.images[c] = new int[imageGroup.size * imageGroup.size];
-        // tempImage.getRGB(imageGroup.images[c], 0, imageGroup.size, c * imageGroup.size, 0, imageGroup.size, imageGroup.size);
       }
       hashtable.put( String.valueOf( fileName.hashCode() ), imageGroup );
     } catch ( IOException ex ) {
@@ -69,7 +67,6 @@ public class Splitter {
     }
     try {
       g.drawImage( imageGroup.images[imageIndex], x, ( isYCenter ? y - imageGroup.size / 2 : y ), Graphics.TOP | Graphics.LEFT );
-      // g.drawRGB(imageGroup.images[imageIndex], 0, imageGroup.size, x, (isYCenter ? y - imageGroup.size / 2 : y), imageGroup.size, imageGroup.size, true);
     } catch ( NullPointerException ex1 ) {
       return 0;
     }
@@ -109,6 +106,5 @@ public class Splitter {
 
   public static ImageGroup getImageGroup( int imageFileHash ) {
     return ( ImageGroup ) hashtable.get( String.valueOf( imageFileHash ) );
-
   }
 }

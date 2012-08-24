@@ -6,5 +6,4 @@ package com.tomclaw.utils.bb;
  * @author Solkin
  */
 public class UnsupportedTagException extends Exception {
-    
 }
