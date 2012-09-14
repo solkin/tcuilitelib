@@ -30,4 +30,13 @@ public class BBStyleString {
       smileLink.analyzeFrame();
     }
   }
+
+  public BBStyleString trim() {
+    /** Checking for string is not null **/
+    if ( string != null ) {
+      /** Trimming string **/
+      string = string.trim();
+    }
+    return this;
+  }
 }

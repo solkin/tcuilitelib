@@ -127,7 +127,7 @@ public class BBUtil {
               }
               styleString.local_x = x + local_x;
               styleString.local_y = y + total_height;
-              styledStrings.addElement( styleString );
+              styledStrings.addElement( styleString.trim() );
               bbResult.originalString += Smiles.smiles[smileLink.smileIndex].getSmileDefinitions()[0];
               if ( smileLink.getHeight() > line_height ) {
                 line_height = smileLink.getHeight();
@@ -140,7 +140,7 @@ public class BBUtil {
               elements.push( style );
             } catch ( UnsupportedTagException ex ) {
               /** 
-               * This exception may occure 
+               * This exception may occur 
                * because of incorrect tag format 
                **/
             }
@@ -196,7 +196,7 @@ public class BBUtil {
         styleString.string = printText;
         styleString.local_x = x + local_x;
         styleString.local_y = y + total_height;
-        styledStrings.addElement( styleString );
+        styledStrings.addElement( styleString.trim() );
         bbResult.originalString += printText;
 
         local_x += style.font.stringWidth( printText );
