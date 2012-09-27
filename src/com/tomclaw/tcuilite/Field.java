@@ -85,18 +85,14 @@ public class Field extends PaneObject {
   }
 
   public void showInputDialog() {
-    /**
-     * Setting up
-     */
+    /** Setting up **/
     Screen.screen.textBox.setTitle( title );
-    Screen.screen.textBox.setString( caption );
     Screen.screen.textBox.setMaxSize( maxSize );
     Screen.screen.textBox.setConstraints( constraints == javax.microedition.lcdui.TextField.PASSWORD
             ? javax.microedition.lcdui.TextField.ANY : constraints );
+    Screen.screen.textBox.setString( caption );
     Screen.screen.setField( this );
-    /**
-     * Showing
-     */
+    /** Showing **/
     Screen.screen.showTemp();
     actionPerformed();
   }
