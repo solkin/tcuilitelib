@@ -43,6 +43,7 @@ public class ChatItem extends PaneObject {
   public String buddyNick = null;
   public String itemDateTime = null;
   public int itemType = 0x00;
+  public String[] links = null;
   /**
    * 0x00 - plain message 0x01 - hyperlink 0x02 - auth message 0x03 - info (any)
    * 0x04 - error (any) 0x06 - file
