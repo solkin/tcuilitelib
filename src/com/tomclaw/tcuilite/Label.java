@@ -26,6 +26,7 @@ public class Label extends PaneObject {
   private boolean isTitle = false;
   private boolean isHeader = false;
   private boolean isBold = false;
+  private boolean isItalic = false;
   /**
    * Runtime
    */
@@ -61,7 +62,7 @@ public class Label extends PaneObject {
     } else if ( isHeader ) {
       DrawUtil.fillVerticalGradient( g, x, y, width, height, headerGradFrom, headerGradTo );
       g.setColor( headerHr );
-      g.drawLine( x, y + height-1, x + width, y + height-1 );
+      g.drawLine( x, y + height - 1, x + width, y + height - 1 );
     }
     if ( getFocusable() && getFocused() ) {
       g.setColor( actOuterLight );
@@ -142,23 +143,29 @@ public class Label extends PaneObject {
   public void updateCaption() {
     strings = StringUtil.wrapText( caption, width - ( Theme.upSize + 4 ) * 2 - ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ), getFont() );
   }
-  
+
   private Font getFont() {
-    return isBold ? Theme.titleFont : Theme.font;
+    return isBold ? Theme.titleFont
+            : ( isItalic ? Theme.italicFont : Theme.font );
   }
-  
-  public void setTitle(boolean isTitle) {
+
+  public void setTitle( boolean isTitle ) {
     this.isTitle = isTitle;
     updateCaption();
   }
-  
-  public void setHeader(boolean isHeader) {
+
+  public void setHeader( boolean isHeader ) {
     this.isHeader = isHeader;
     updateCaption();
   }
-  
-  public void setBold(boolean isBold) {
+
+  public void setBold( boolean isBold ) {
     this.isBold = isBold;
+    updateCaption();
+  }
+
+  public void setItalic( boolean isItalic ) {
+    this.isItalic = isItalic;
     updateCaption();
   }
 

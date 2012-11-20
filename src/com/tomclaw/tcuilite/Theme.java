@@ -34,6 +34,7 @@ public class Theme {
   /** Fonts **/
   public static Font font = FontUtil.getFont( Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL );
   public static Font titleFont = FontUtil.getFont( Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL );
+  public static Font italicFont = FontUtil.getFont( Font.FACE_PROPORTIONAL, Font.STYLE_ITALIC, Font.SIZE_SMALL );
   /** Sizes **/
   public static int upSize = 1;
   public static int scrollWidth = 15;
