@@ -7,7 +7,7 @@ import java.io.IOException;
 import javax.microedition.lcdui.Font;
 
 /**
- * Solkin Igor Viktorovich, TomClaw Software, 2003-2012
+ * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
  * http://www.tomclaw.com/
  * @author Solkin
  */
@@ -32,9 +32,12 @@ public class Theme {
   public static final int BLOCK_SOFT = 16;
   public static final int BLOCK_TAB = 17;
   /** Fonts **/
-  public static Font font = FontUtil.getFont( Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL );
-  public static Font titleFont = FontUtil.getFont( Font.FACE_PROPORTIONAL, Font.STYLE_BOLD, Font.SIZE_SMALL );
-  public static Font italicFont = FontUtil.getFont( Font.FACE_PROPORTIONAL, Font.STYLE_ITALIC, Font.SIZE_SMALL );
+  public static Font font = FontUtil.getFont( Font.FACE_PROPORTIONAL,
+          Font.STYLE_PLAIN, Font.SIZE_SMALL );
+  public static Font titleFont = FontUtil.getFont( Font.FACE_PROPORTIONAL,
+          Font.STYLE_BOLD, Font.SIZE_SMALL );
+  public static Font italicFont = FontUtil.getFont( Font.FACE_PROPORTIONAL,
+          Font.STYLE_ITALIC, Font.SIZE_SMALL );
   /** Sizes **/
   public static int upSize = 1;
   public static int scrollWidth = 15;
@@ -46,6 +49,12 @@ public class Theme {
   private static Thread thread;
   private static int[] data_tr;
 
+  private static DataInputStream getInputStream( String resDatFile ) {
+    DataInputStream dis = new DataInputStream( Runtime.getRuntime()
+            .getClass().getResourceAsStream( resDatFile ) );
+    return dis;
+  }
+
   /**
    * Loading theme from resource file
    * @param resDatFile
@@ -53,22 +62,20 @@ public class Theme {
    */
   public static int[] loadTheme( String resDatFile ) {
     try {
-      DataInputStream dis = new DataInputStream( Class.forName( "com.tomclaw.tcuilite.Theme" ).getResourceAsStream( resDatFile ) );
-      return loadTheme( dis );
+      return loadTheme( getInputStream(resDatFile) );
     } catch ( Throwable ex ) {
       return null;
     }
   }
 
   /**
-   * Loading themefrom resource file
+   * Loading theme from resource file
    * @param resDatFile
    * @throws IOException
    */
   public static String loadTitle( String resDatFile ) {
     try {
-      DataInputStream dis = new DataInputStream( Class.forName( "com.tomclaw.tcuilite.Theme" ).getResourceAsStream( resDatFile ) );
-      return loadTitle( dis );
+      return loadTitle( getInputStream(resDatFile) );
     } catch ( Throwable ex ) {
       return null;
     }
@@ -399,7 +406,6 @@ public class Theme {
       data_tr = new int[ data_to.length ];
     }
     thread = new Thread() {
-
       public void run() {
         isThemeChangeActive = true;
         int currPoint, destPoint;

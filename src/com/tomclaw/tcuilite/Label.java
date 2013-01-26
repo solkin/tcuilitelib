@@ -1,38 +1,25 @@
 package com.tomclaw.tcuilite;
 
 import com.tomclaw.utils.DrawUtil;
-import com.tomclaw.utils.StringUtil;
-import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
-import javax.microedition.lcdui.Image;
 
 /**
- * Solkin Igor Viktorovich, TomClaw Software, 2003-2012
+ * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
  * http://www.tomclaw.com/
  * @author Solkin
  */
 public class Label extends PaneObject {
 
-  public String caption = "";
+  /** Basic **/
   public int x = 0;
   public int y = 0;
   public int width = 0;
   public int height = 0;
-  public Image image = null;
-  /** 
-   * Private fields 
-   */
-  private String[] strings = new String[ 0 ];
+  /** Private fields **/
+  private Content content;
   private boolean isTitle = false;
   private boolean isHeader = false;
-  private boolean isBold = false;
-  private boolean isItalic = false;
-  /**
-   * Runtime
-   */
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int foreColor = 0x555555;
   public static int backColor = 0xFFFFFF;
   public static int borderColor = 0xB08BF0;
@@ -43,13 +30,13 @@ public class Label extends PaneObject {
   public static int headerGradFrom = 0xADAAAD;
   public static int headerGradTo = 0xE7E3E7;
   public static int headerHr = 0xD6D3D6;
-  /**
-   * Sizes
-   */
-  public int interlineheight = 2;
 
   public Label( String caption ) {
-    setCaption( caption );
+    this( new PlainContent( caption ) );
+  }
+
+  public Label( Content content ) {
+    this.content = content;
     setFocusable( false );
   }
 
@@ -60,7 +47,8 @@ public class Label extends PaneObject {
       g.setColor( focusedBackColor );
       g.fillRect( x + 3, y + 3, width - 5, height - 5 );
     } else if ( isHeader ) {
-      DrawUtil.fillVerticalGradient( g, x, y, width, height, headerGradFrom, headerGradTo );
+      DrawUtil.fillVerticalGradient( g, x, y, width, height, headerGradFrom,
+              headerGradTo );
       g.setColor( headerHr );
       g.drawLine( x, y + height - 1, x + width, y + height - 1 );
     }
@@ -70,28 +58,21 @@ public class Label extends PaneObject {
       g.setColor( actInnerLight );
       g.drawRect( x + 1, y + 1, width - 2, height - 2 );
     }
-    g.setFont( getFont() );
     g.setColor( isHeader ? headerForeColor : foreColor );
-    if ( image != null ) {
-      g.drawImage( image, x + Theme.upSize, y + height / 2, Graphics.VCENTER | Graphics.LEFT );
-    }
-    for ( int c = 0; c < strings.length; c++ ) {
-      g.drawString( strings[c], x + 2 + Theme.upSize + ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ),
-              y + 2 + ( image == null ? Theme.upSize : ( height / 2 - ( getFont().getHeight() + interlineheight ) * strings.length / 2 ) ) + c * ( getFont().getHeight() + interlineheight ), Graphics.TOP | Graphics.LEFT );
-    }
+    content.paint( g );
   }
 
   public void setLocation( int x, int y ) {
     this.x = x;
     this.y = y;
+    content.setLocation( x, y );
   }
 
   public void setSize( int width, int height ) {
     if ( this.width != width ) {
       this.width = width;
+      content.setWidth( width );
       updateCaption();
-    } else {
-      this.width = width;
     }
     this.height = getHeight();
   }
@@ -127,26 +108,18 @@ public class Label extends PaneObject {
   }
 
   public int getHeight() {
-    height = Math.max( ( image != null ? Theme.upSize * 2 + image.getHeight() : 0 ),
-            getFont().getHeight() + Theme.upSize * 2 + 4 + ( strings.length - 1 ) * ( getFont().getHeight() + interlineheight ) );
-    return height;
+    return content.getHeight();
   }
 
   public void setTouchOrientation( boolean touchOrientation ) {
   }
 
   public final void setCaption( String text ) {
-    caption = text;
-    updateCaption();
+    content.setText( text );
   }
 
   public void updateCaption() {
-    strings = StringUtil.wrapText( caption, width - ( Theme.upSize + 4 ) * 2 - ( image != null ? ( Theme.upSize * 2 + image.getWidth() ) : 0 ), getFont() );
-  }
-
-  private Font getFont() {
-    return isBold ? Theme.titleFont
-            : ( isItalic ? Theme.italicFont : Theme.font );
+    content.update();
   }
 
   public void setTitle( boolean isTitle ) {
@@ -159,18 +132,16 @@ public class Label extends PaneObject {
     updateCaption();
   }
 
-  public void setBold( boolean isBold ) {
-    this.isBold = isBold;
-    updateCaption();
-  }
-
-  public void setItalic( boolean isItalic ) {
-    this.isItalic = isItalic;
-    updateCaption();
-  }
-
   public String getStringValue() {
-    return caption;
+    return content.getText();
+  }
+
+  public void setContent( Content content ) {
+    this.content = content;
+  }
+
+  public Content getContent() {
+    return content;
   }
 
   public void actionPerformed() {

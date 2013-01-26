@@ -4,7 +4,7 @@ import com.tomclaw.utils.FontUtil;
 import javax.microedition.lcdui.Font;
 
 /**
- * Solkin Igor Viktorovich, TomClaw Software, 2003-2012
+ * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
  * http://www.tomclaw.com/
  * @author Solkin
  */

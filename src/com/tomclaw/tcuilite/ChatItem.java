@@ -6,7 +6,7 @@ import com.tomclaw.utils.bb.BBUtil;
 import javax.microedition.lcdui.Graphics;
 
 /**
- * Solkin Igor Viktorovich, TomClaw Software, 2003-2012
+ * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
  * http://www.tomclaw.com/
  * @author Solkin
  */
@@ -88,9 +88,7 @@ public class ChatItem extends PaneObject {
     }
     if ( g != null ) {
       if ( Settings.CHAT_IMAGE_GROUP_FILE != 0 ) {
-        /**
-         * Drawing chat item image
-         */
+        /** Drawing chat item image **/
         imageOffset = Splitter.drawImage( g, Settings.CHAT_IMAGE_GROUP_FILE,
                 ( ( ( itemType == TYPE_PLAIN_MSG
                 ? ( itemType + dlvStatus ) : itemType ) ) ), x + 2 + Theme.upSize, y + 2 + Theme.upSize, false ) + Theme.upSize;
