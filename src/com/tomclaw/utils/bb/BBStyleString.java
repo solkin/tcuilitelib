@@ -26,7 +26,7 @@ public class BBStyleString {
       g.drawString( string, x + local_x, y + local_y, Graphics.TOP | Graphics.LEFT );
     } else if ( smileLink != null ) {
       smileLink.updateLocation( x + local_x, y + local_y );
-      g.drawImage( Smiles.smiles[smileLink.smileIndex].getFrameARGB( smileLink.frameIndex ), smileLink.x, smileLink.y, Graphics.TOP | Graphics.LEFT );
+      Smiles.smiles[smileLink.smileIndex].paint( g, smileLink.x, smileLink.y, smileLink.frameIndex );
       smileLink.analyzeFrame();
     }
   }

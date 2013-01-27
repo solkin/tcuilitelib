@@ -1,6 +1,6 @@
 package com.tomclaw.tcuilite.smiles;
 
-import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.Graphics;
 
 /**
  * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
@@ -9,7 +9,8 @@ import javax.microedition.lcdui.Image;
  */
 public interface CommSmile {
 
-  public Image getFrameARGB( int frameIndex );
+  // public Image getFrameARGB( int frameIndex );
+  public void paint(Graphics g, int x, int y, int frameIndex);
 
   public int getWidth();
 

@@ -37,14 +37,9 @@ public class Smile extends PaneObject {
       g.drawRect( x + 1, y + 1, width - 2, height - 2 );
     }
     smileLink.updateLocation( x + ( isCenteredHorizontally ? ( width / 2 - smileLink.getWidth() / 2 ) : 0 ),
-        y + ( isCenteredVertically ? ( height / 2 - smileLink.getHeight() / 2 ) : ( isUpSize ? Theme.upSize : 0 ) ) );
+            y + ( isCenteredVertically ? ( height / 2 - smileLink.getHeight() / 2 ) : ( isUpSize ? Theme.upSize : 0 ) ) );
     if ( g != null ) {
-      try {
-        g.drawImage(
-            Smiles.smiles[smileLink.smileIndex].getFrameARGB( smileLink.frameIndex ),
-            smileLink.x, smileLink.y, Graphics.TOP | Graphics.LEFT );
-      } catch ( Throwable ex1 ) {
-      }
+      Smiles.smiles[smileLink.smileIndex].paint( g, smileLink.x, smileLink.y, smileLink.frameIndex );
       smileLink.analyzeFrame();
     }
   }

@@ -74,14 +74,15 @@ public class Smiles {
         smiles = new StatSmile[ is.readChar() ];
         int x, y, w, h;
         int determCount;
+        StatSmile.image = smilesImage;
         StatSmile tempSmile;
         for ( int c = 0; c < smiles.length; c++ ) {
           x = is.readChar();
           y = is.readChar();
           w = is.readChar();
           h = is.readChar();
-          tempSmile = new StatSmile();
-          tempSmile.image = Image.createImage( smilesImage, x, y, w, h, Sprite.TRANS_NONE );
+          tempSmile = new StatSmile(x, y, w, h);
+          // tempSmile.image = smilesImage;// Image.createImage( smilesImage, x, y, w, h, Sprite.TRANS_NONE );
           determCount = is.readChar();
           tempSmile.smileDefinitions = new String[ determCount ];
           for ( int i = 0; i < determCount; i++ ) {
@@ -123,11 +124,11 @@ public class Smiles {
       /** Creating smile oject **/
       animSmile.setWidth( tempImage.getWidth() / animSmile.framesDelay.length );
       animSmile.setHeight( tempImage.getHeight() );
-      animSmile.setFramesARGB( new Image[ animSmile.framesDelay.length ] );
+      animSmile.setFramesARGB( tempImage );
       /** Cutting smiles **/
-      for ( int c = 0; c < animSmile.framesDelay.length; c++ ) {
+      /*for ( int c = 0; c < animSmile.framesDelay.length; c++ ) {
         animSmile.setFrameARGB( c, Image.createImage( tempImage, c * animSmile.getWidth(), 0, animSmile.getWidth(), animSmile.getHeight(), Sprite.TRANS_NONE ) );
-      }
+      }*/
     } catch ( IOException ex ) {
       /** Nothing to do at all **/
     }
