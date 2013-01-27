@@ -10,5 +10,9 @@ import javax.microedition.lcdui.Image;
 public class ImageGroup {
 
   public int size;
-  public Image[] images;
+  public Image images;
+
+  public int getCount() {
+    return images.getWidth() / size;
+  }
 }

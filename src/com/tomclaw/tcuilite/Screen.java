@@ -194,7 +194,7 @@ public class Screen extends Canvas {
                   ( getWidth() - waitGroup.size ) / 2, getHeight() / 2, true );
           /** Calculating wait screen index **/
           waitIndex++;
-          if ( waitIndex == waitGroup.images.length ) {
+          if ( waitIndex == waitGroup.getCount() ) {
             waitIndex = 0;
           }
           waitRepaintTime = System.currentTimeMillis();
