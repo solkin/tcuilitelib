@@ -5,7 +5,6 @@ import com.tomclaw.utils.StringUtil;
 import java.io.DataInputStream;
 import java.io.IOException;
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.game.Sprite;
 
 /**
  * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
@@ -24,7 +23,8 @@ public class Smiles {
 
   public static void readSmileData( boolean isBBAdapted ) throws Throwable {
     /** Loading resource file **/
-    DataInputStream is = new DataInputStream( Runtime.getRuntime().getClass().getResourceAsStream( smilesDatapath ) );
+    DataInputStream is = new DataInputStream( Runtime.getRuntime().getClass()
+            .getResourceAsStream( smilesDatapath ) );
     if ( is != null ) {
       smilesType = is.readChar();
       System.out.println( "smilesType = " + smilesType );
@@ -81,8 +81,7 @@ public class Smiles {
           y = is.readChar();
           w = is.readChar();
           h = is.readChar();
-          tempSmile = new StatSmile(x, y, w, h);
-          // tempSmile.image = smilesImage;// Image.createImage( smilesImage, x, y, w, h, Sprite.TRANS_NONE );
+          tempSmile = new StatSmile( x, y, w, h );
           determCount = is.readChar();
           tempSmile.smileDefinitions = new String[ determCount ];
           for ( int i = 0; i < determCount; i++ ) {
@@ -125,10 +124,6 @@ public class Smiles {
       animSmile.setWidth( tempImage.getWidth() / animSmile.framesDelay.length );
       animSmile.setHeight( tempImage.getHeight() );
       animSmile.setFramesARGB( tempImage );
-      /** Cutting smiles **/
-      /*for ( int c = 0; c < animSmile.framesDelay.length; c++ ) {
-        animSmile.setFrameARGB( c, Image.createImage( tempImage, c * animSmile.getWidth(), 0, animSmile.getWidth(), animSmile.getHeight(), Sprite.TRANS_NONE ) );
-      }*/
     } catch ( IOException ex ) {
       /** Nothing to do at all **/
     }

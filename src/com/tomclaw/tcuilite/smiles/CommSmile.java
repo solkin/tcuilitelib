@@ -9,7 +9,6 @@ import javax.microedition.lcdui.Graphics;
  */
 public interface CommSmile {
 
-  // public Image getFrameARGB( int frameIndex );
   public void paint(Graphics g, int x, int y, int frameIndex);
 
   public int getWidth();
