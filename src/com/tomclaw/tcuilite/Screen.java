@@ -14,9 +14,7 @@ import javax.microedition.midlet.MIDlet;
  */
 public class Screen extends Canvas {
 
-  /**
-   * Constants
-   */
+  /** Constants **/
   public static final int KEY_CODE_LEFT_MENU = 1000001;
   public static final int KEY_CODE_RIGHT_MENU = 1000002;
   public static final int KEY_CODE_BACK_BUTTON = 1000003;
@@ -127,7 +125,7 @@ public class Screen extends Canvas {
 
   public void show() {
     Display.getDisplay( midlet ).setCurrent( this );
-    DrawUtil.rgbData = new int[ ( getWidth() > getHeight() ? getWidth() : getHeight() ) ];
+    DrawUtil._rgbData = new int[ ( getWidth() > getHeight() ? getWidth() : getHeight() ) ];
   }
 
   public void setActiveWindow( Window window ) {
