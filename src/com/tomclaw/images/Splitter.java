@@ -37,7 +37,7 @@ public class Splitter {
     try {
       /** Loading image file **/
       tempImage = Image.createImage( fileName );
-      /** Creating images group oject **/
+      /** Creating images group object **/
       imageGroup.size = tempImage.getHeight();
       imageGroup.images = tempImage;
       /** Checking and updating maximum image size **/

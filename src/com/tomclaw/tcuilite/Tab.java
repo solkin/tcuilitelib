@@ -10,43 +10,35 @@ import javax.microedition.lcdui.Graphics;
  * http://www.tomclaw.com/
  * @author Solkin
  */
-public class Tab implements GObject {
+public class Tab extends GObject {
 
-  public String name = null;
   public Vector items = null;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
   public int xOffset = 0;
-  public int selectedIndex = -1;
+  public int selectedIndex = 0;
   public TabEvent tabEvent = null;
   public GObject gObject = null;
   public int KEY_LEFT_EVENT = Screen.LEFT;
   public int KEY_RIGHT_EVENT = Screen.RIGHT;
-  /**
-   * Runtime
-   */
+  /** Runtime **/
   private TabItem tempTabItem;
   public int dragXStart = -1;
   public Screen screen;
-  /**
-   * Sizes
-   */
+  /** Sizes **/
   public int itemHeight;
   public int imageWidth = 0;
   public int totalWidth = 0;
   public int tabLabelHeight;
-  /**
-   * Colors
-   */
-  public static int foreColor = 0x555555;
-  public static int backColor = 0xFFFFFF;
-  public static int hrLine = 0xDDDDDD;
+  /** Colors **/
+  public static int backGradFrom = 0xFFFFFF;
+  public static int backGradTo = 0xFFFFFF;
+  public static int selectedForeColor = 0x555555;
   public static int selectedGradFrom = 0xDDDDFF;
   public static int selectedGradTo = 0xBBAAEE;
   public static int selectedUpOutline = 0xCCCCEE;
   public static int selectedBottomOutline = 0xAAAACC;
+  public static int unSelectedForeColor = 0x555555;
+  public static int unSelectedGradFrom = 0xFFFFFF;
+  public static int unSelectedGradTo = 0xFFFFFF;
   public static int unSelectedUpOutline = 0xDDDDDD;
   public static int unSelectedBottomOutline = 0xAAAAAA;
 
@@ -71,15 +63,13 @@ public class Tab implements GObject {
   public void repaint( Graphics g, int paintX, int paintY ) {
     g.setFont( Theme.font );
     itemHeight = Theme.font.getHeight() + Theme.upSize * 3;
-    g.setColor( backColor );
     g.setClip( paintX + x, paintY + y, width, itemHeight + 1 );
-    g.fillRect( paintX + x, paintY + y, width, itemHeight );
-    int tempXOffset = 0;
-    int itemWidth;
+    DrawUtil.fillVerticalGradient( g, paintX + x, paintY + y, width, itemHeight, backGradFrom, backGradTo );
+    int tempXOffset = 0, itemWidth;
     g.setColor( unSelectedBottomOutline );
     g.drawLine( paintX + x, paintY + y + itemHeight, paintX + x + width, paintY + y + itemHeight );
     for ( int c = 0; c < items.size(); c++ ) {
-      tempTabItem = ( TabItem ) items.elementAt( c );
+      tempTabItem = (TabItem) items.elementAt( c );
       if ( tempTabItem.imageFileHash != 0 ) {
         imageWidth = Splitter.getImageGroup( tempTabItem.imageFileHash ).size;
       } else {
@@ -98,6 +88,7 @@ public class Tab implements GObject {
         g.setColor( selectedBottomOutline );
         g.drawLine( paintX + x + tempXOffset - xOffset + 1, paintY + y + itemHeight, paintX + x + tempXOffset - xOffset + itemWidth - 1, paintY + y + itemHeight );
       } else {
+        DrawUtil.fillVerticalGradient( g, paintX + x + tempXOffset - xOffset + 1, paintY + y + 1, itemWidth - 1, itemHeight - 1, unSelectedGradFrom, unSelectedGradTo );
         g.setColor( unSelectedUpOutline );
         g.drawLine( paintX + x + tempXOffset - xOffset + 1, paintY + y + Theme.upSize, paintX + x + tempXOffset - xOffset + itemWidth - 1, paintY + y + Theme.upSize );
         if ( c == 0 ) {
@@ -108,7 +99,7 @@ public class Tab implements GObject {
       if ( tempTabItem.imageIndex != -1 ) {
         Splitter.drawImage( g, tempTabItem.imageFileHash, tempTabItem.imageIndex, paintX + x + tempXOffset - xOffset + Theme.upSize, paintY + y + Theme.upSize * 2, false );
       }
-      g.setColor( foreColor );
+      g.setColor( c == selectedIndex ? selectedForeColor : unSelectedForeColor );
       g.drawString( tempTabItem.title, paintX + x + tempXOffset - xOffset + Theme.upSize + ( ( tempTabItem.imageIndex == -1 ) ? 0 : ( imageWidth + Theme.upSize ) ), paintY + y + Theme.upSize * 2, Graphics.TOP | Graphics.LEFT );
       tempXOffset += itemWidth;
     }
@@ -117,8 +108,8 @@ public class Tab implements GObject {
     tabLabelHeight = 0;
     if ( selectedIndex >= 0 && selectedIndex < items.size() ) {
       /** Obtain tab item object **/
-      tempTabItem = ( TabItem ) items.elementAt( selectedIndex );
-      /** Checking for something strange and label existance **/
+      tempTabItem = (TabItem) items.elementAt( selectedIndex );
+      /** Checking for something strange and label exist **/
       if ( tempTabItem != null && tempTabItem.tabLabel != null ) {
         tempTabItem.tabLabel.setLocation( paintX + x, paintY + y + itemHeight + 1 );
         tempTabItem.tabLabel.setSize( width, -1 );
@@ -135,22 +126,11 @@ public class Tab implements GObject {
     g.setClip( 0, 0, screen.getWidth(), screen.getHeight() );
   }
 
-  public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public void setSize( int width, int height ) {
-    /** Total object size (include GObject) **/
-    this.width = width;
-    this.height = height;
-  }
-
   public void keyPressed( int keyCode ) {
     if ( ( ( Screen.getExtGameAct( keyCode ) == KEY_LEFT_EVENT || keyCode == KEY_LEFT_EVENT ) || ( Screen.getExtGameAct( keyCode ) == KEY_RIGHT_EVENT || keyCode == KEY_RIGHT_EVENT ) )
-            && gObject instanceof Pane && !( ( Pane ) gObject ).items.isEmpty()
-            && ( ( ( Pane ) gObject ).psvLstFocusedIndex ) >= 0
-            && ( ( PaneObject ) ( ( ( Pane ) gObject ).items.elementAt( ( ( Pane ) gObject ).psvLstFocusedIndex ) ) ) instanceof Gauge ) {
+            && gObject instanceof Pane && !( (Pane) gObject ).items.isEmpty()
+            && ( ( (Pane) gObject ).psvLstFocusedIndex ) >= 0
+            && ( (PaneObject) ( ( (Pane) gObject ).items.elementAt( ( (Pane) gObject ).psvLstFocusedIndex ) ) ) instanceof Gauge ) {
       gObject.keyPressed( keyCode );
       return;
     }
@@ -166,7 +146,7 @@ public class Tab implements GObject {
   public void keyReleased( int keyCode ) {
     if ( ( Screen.getExtGameAct( keyCode ) != KEY_LEFT_EVENT || keyCode != KEY_LEFT_EVENT ) && ( Screen.getExtGameAct( keyCode ) != KEY_RIGHT_EVENT || keyCode != KEY_RIGHT_EVENT ) ) {
       gObject.keyReleased( keyCode );
-    } else if ( gObject instanceof Pane && !( ( Pane ) gObject ).items.isEmpty() && ( ( ( Pane ) gObject ).psvLstFocusedIndex ) >= 0 && ( ( PaneObject ) ( ( ( Pane ) gObject ).items.elementAt( ( ( Pane ) gObject ).psvLstFocusedIndex ) ) ) instanceof Gauge ) {
+    } else if ( gObject instanceof Pane && !( (Pane) gObject ).items.isEmpty() && ( ( (Pane) gObject ).psvLstFocusedIndex ) >= 0 && ( (PaneObject) ( ( (Pane) gObject ).items.elementAt( ( (Pane) gObject ).psvLstFocusedIndex ) ) ) instanceof Gauge ) {
       gObject.keyReleased( keyCode );
     }
   }
@@ -182,7 +162,7 @@ public class Tab implements GObject {
       screen.isSlideMode = false;
       screen.isDirectScroll = true;
       for ( int c = 0; c < items.size(); c++ ) {
-        tempTabItem = ( ( TabItem ) items.elementAt( c ) );
+        tempTabItem = ( (TabItem) items.elementAt( c ) );
         if ( tempTabItem.x <= x + xOffset && ( tempTabItem.x + tempTabItem.width ) >= x + xOffset ) {
           if ( tabEvent != null ) {
             tabEvent.stateChanged( selectedIndex, c, items.size() );
@@ -201,9 +181,7 @@ public class Tab implements GObject {
   public void pointerReleased( int x, int y ) {
     if ( dragXStart == -1 ) {
       gObject.pointerReleased( x, y );
-    } /*
-     * else { focusSelectedItem(); }
-     */
+    }
   }
 
   public boolean pointerDragged( int x, int y ) {
@@ -224,25 +202,6 @@ public class Tab implements GObject {
     return gObject.pointerDragged( x, y );
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public void setTouchOrientation( boolean touchOrientation ) {
-  }
-
   public void focusLeft() {
     if ( selectedIndex - 1 >= 0 ) {
       if ( tabEvent != null ) {
@@ -251,7 +210,7 @@ public class Tab implements GObject {
         selectedIndex--;
       }
     }
-    tempTabItem = ( ( TabItem ) items.elementAt( selectedIndex ) );
+    tempTabItem = ( (TabItem) items.elementAt( selectedIndex ) );
     if ( tempTabItem.x - xOffset < 0 ) {
       xOffset = tempTabItem.x;
     }
@@ -265,14 +224,14 @@ public class Tab implements GObject {
         selectedIndex++;
       }
     }
-    tempTabItem = ( ( TabItem ) items.elementAt( selectedIndex ) );
+    tempTabItem = ( (TabItem) items.elementAt( selectedIndex ) );
     if ( tempTabItem.x + tempTabItem.width - xOffset + 1 > width ) {
       xOffset = tempTabItem.x + tempTabItem.width - width + 1;
     }
   }
 
   public void focusSelectedItem() {
-    tempTabItem = ( ( TabItem ) items.elementAt( selectedIndex ) );
+    tempTabItem = ( (TabItem) items.elementAt( selectedIndex ) );
     if ( tempTabItem.x - xOffset < 0 ) {
       xOffset = tempTabItem.x;
     }
@@ -294,7 +253,7 @@ public class Tab implements GObject {
       }
       selectedIndex = tabIndex;
       if ( totalWidth > width ) {
-        TabItem tabItem = ( TabItem ) items.elementAt( tabIndex );
+        TabItem tabItem = (TabItem) items.elementAt( tabIndex );
         /** Empty space **/
         if ( totalWidth - xOffset < width ) {
           xOffset = totalWidth - width;

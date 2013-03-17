@@ -7,12 +7,11 @@ package com.tomclaw.tcuilite;
  */
 public class GroupChild {
 
-  public String name = null;
   /**
    * Main objects
    */
   public String title;
-  public Thread thread;
+  public Runnable runnable;
   /**
    * Conditions
    */
@@ -32,8 +31,8 @@ public class GroupChild {
   }
 
   public void actionPerformed() {
-    if ( thread != null ) {
-      thread.run();
+    if ( runnable != null ) {
+      runnable.run();
     }
   }
 }

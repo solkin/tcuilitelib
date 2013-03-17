@@ -5,59 +5,33 @@ import com.tomclaw.utils.DrawUtil;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.rms.RecordStore;
-import javax.microedition.rms.RecordStoreException;
-import javax.microedition.rms.RecordStoreNotOpenException;
 
 /**
  * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
  * http://www.tomclaw.com/
  * @author Solkin
  */
-public class List implements GObject {
+public class List extends Scroll {
 
-  public String name = null;
   public RecordStore recordStore;
   public ListRmsRenderer listRmsRenderer;
   public Vector items = null;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
-  public int yOffset = 0;
   public int selectedIndex = 0;
   public ListEvent listEvent = null;
-  /**
-   * Runtime
-   */
+  /** Runtime **/
   public int startIndex = 0;
-  public int prevYDrag = -1;
-  public int repaintScrollWidth = 0;
-  public boolean isScrollAction = false;
   public boolean isSelectedState = false;
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int foreColor = 0x555555;
+  public static int foreSelColor = 0x555555;
   public static int backColor = 0xFFFFFF;
   public static int hrLine = 0xDDDDDD;
   public static int selectedGradFrom = 0xDDDDFF;
   public static int selectedGradTo = 0xBBAAEE;
   public static int selectedUpOutline = 0xCCCCEE;
   public static int selectedBottomOutline = 0xAAAACC;
-  public static int unSelectedGradFrom = 0xFFFFFF;
-  public static int unSelectedGradTo = 0xF7F3F7;
-  public static int scrollBack = 0xFFFFFF;
-  public static int scrollGradFrom = 0xDDDDDD;
-  public static int scrollGradTo = 0xAAAAAA;
-  public static int scrollBorder = 0xAAAAAA;
-  public static int scrollFix = 0x888888;
-  public static int scrollFixShadow = 0xDDDDDD;
-  /**
-   * Sizes
-   */
+  /** Sizes **/
   public int itemHeight;
-  private int scrollStart;
-  private int scrollHeight;
   private ListItem templistItem;
   private int imageOffset = 0;
 
@@ -76,8 +50,7 @@ public class List implements GObject {
       byte[] abyte0 = listRmsRenderer.getRmsData( listItem );
       try {
         recordStore.addRecord( abyte0, 0, abyte0.length );
-      } catch ( RecordStoreNotOpenException ex ) {
-      } catch ( RecordStoreException ex ) {
+      } catch ( Throwable ex ) {
       }
     }
   }
@@ -101,10 +74,7 @@ public class List implements GObject {
         selectedIndex = 0;
       }
     }
-
-    /**
-     * Checking list position
-     */
+    /** Checking list position **/
     if ( selectedIndex >= items.size() ) {
       selectedIndex = items.size() - 1;
     }
@@ -115,24 +85,22 @@ public class List implements GObject {
         yOffset = 0;
       }
     }
-
     g.setFont( Theme.font );
     g.setColor( backColor );
     g.fillRect( paintX + x, paintY + y, width - repaintScrollWidth, height );
     startIndex = ( yOffset / itemHeight );
     for ( int c = startIndex; c < startIndex + height / itemHeight + 2; c++ ) {
       if ( c == selectedIndex ) {
-        DrawUtil.fillVerticalGradient( g, paintX + x, paintY + y + c * itemHeight - yOffset, width - 2 - repaintScrollWidth - ( x ), itemHeight, selectedGradFrom, selectedGradTo );
+        DrawUtil.fillVerticalGradient( g, paintX + x, paintY + y + c * itemHeight - yOffset, width - 1 - repaintScrollWidth - x, itemHeight, selectedGradFrom, selectedGradTo );
         g.setColor( selectedUpOutline );
         g.drawLine( paintX + x, paintY + y + c * itemHeight - yOffset, paintX + x + width - 2 - 1 - repaintScrollWidth + 1, paintY + y + c * itemHeight - yOffset );
         g.setColor( selectedBottomOutline );
         g.drawLine( paintX + x, paintY + y + ( c + 1 ) * itemHeight - yOffset, paintX + x + width - 2 - 1 - repaintScrollWidth + 1, paintY + y + ( c + 1 ) * itemHeight - yOffset );
+        g.setColor( foreSelColor );
       } else {
         g.setColor( hrLine );
         g.drawLine( paintX + x, paintY + y + ( c + 1 ) * itemHeight - yOffset, paintX + x + 1 + width - 2 - repaintScrollWidth, paintY + y + ( c + 1 ) * itemHeight - yOffset );
-        if ( Settings.LIST_DRAW_BACKSIDEGRAD ) {
-          DrawUtil.fillVerticalGradient( g, paintX + x, paintY + y + c * itemHeight - yOffset + 1, 1 + width - 2 - repaintScrollWidth - ( x ), itemHeight - 1, unSelectedGradFrom, unSelectedGradTo );
-        }
+        g.setColor( foreColor );
       }
       if ( c < items.size() ) {
         templistItem = getElement( c );
@@ -144,7 +112,6 @@ public class List implements GObject {
         } else {
           imageOffset = 0;
         }
-        g.setColor( foreColor );
         g.drawString( templistItem.title,
                 paintX + x + Theme.upSize + 1 + imageOffset,
                 paintY + y + c * itemHeight - yOffset + Theme.upSize + 1,
@@ -159,37 +126,9 @@ public class List implements GObject {
         }
       }
     }
-    /**
-     * Scroll
-     */
-    if ( repaintScrollWidth > 0 ) {
-      g.setColor( scrollBack );
-      g.fillRect( paintX + x + width - repaintScrollWidth, paintY + y, repaintScrollWidth, height );
-      scrollStart = height * yOffset / ( items.size() * itemHeight );
-      scrollHeight = height * height / ( items.size() * itemHeight );
-      DrawUtil.fillHorizontalGradient( g, paintX + x + width - repaintScrollWidth, paintY + y + scrollStart, repaintScrollWidth, scrollHeight, scrollGradFrom, scrollGradTo );
-      if ( scrollHeight > 6 ) {
-        g.setColor( scrollFixShadow );
-        g.fillRect( paintX + x + width - repaintScrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 1, repaintScrollWidth - 2, 5 );
-        g.setColor( scrollFix );
-        g.drawLine( paintX + x + width - repaintScrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 - 2 );
-        g.drawLine( paintX + x + width - repaintScrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 );
-        g.drawLine( paintX + x + width - repaintScrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 + 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 + 2 );
-      }
-      g.setColor( scrollBorder );
-      g.drawRect( paintX + x + width - repaintScrollWidth - 1, paintY + y + height * yOffset / ( items.size() * itemHeight ), repaintScrollWidth, height * height / ( items.size() * itemHeight ) );
-      g.drawLine( paintX + x + width - repaintScrollWidth - 1, paintY + y, paintX + x + width - repaintScrollWidth - 1, paintY + y + height - 1 );
-    }
-  }
-
-  public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public void setSize( int width, int height ) {
-    this.width = width;
-    this.height = height;
+    /** Scroll **/
+    this.totalHeight = items.size() * itemHeight;
+    super.repaint( g, paintX, paintY );
   }
 
   public void keyPressed( int keyCode ) {
@@ -303,36 +242,12 @@ public class List implements GObject {
     return true;
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public void setTouchOrientation( boolean touchOrientation ) {
-    if ( touchOrientation ) {
-      Theme.scrollWidth = 15;
-    } else {
-      Theme.scrollWidth = 5;
-    }
-  }
-
   private boolean openRecordStore( String fileName ) {
     try {
       recordStore = RecordStore.openRecordStore( fileName, false );
       items.setSize( recordStore.getNumRecords() );
       return true;
-    } catch ( RecordStoreException ex ) {
+    } catch ( Throwable ex ) {
       recordStore = null;
       return false;
     }

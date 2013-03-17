@@ -7,35 +7,52 @@ import javax.microedition.lcdui.Graphics;
  * http://www.tomclaw.com/
  * @author Solkin
  */
-public interface GObject {
+public abstract class GObject {
+  
+  public int x, y, width, height;
 
-  public void repaint( Graphics g );
+  public void setLocation( int x, int y ) {
+    this.x = x;
+    this.y = y;
+  }
 
-  public void repaint( Graphics g, int paintX, int paintY );
+  public void setSize( int width, int height ) {
+    this.width = width;
+    this.height = height;
+  }
 
-  public void setLocation( int x, int y );
+  public int getX() {
+    return x;
+  }
 
-  public void setSize( int width, int height );
+  public int getY() {
+    return y;
+  }
 
-  public void keyPressed( int keyCode );
+  public int getWidth() {
+    return width;
+  }
 
-  public void keyReleased( int keyCode );
+  public int getHeight() {
+    return height;
+  }
 
-  public void keyRepeated( int keyCode );
+  public void setTouchOrientation( boolean touchOrientation ) {
+  }
 
-  public void pointerPressed( int x, int y );
+  public abstract void repaint( Graphics g );
 
-  public void pointerReleased( int x, int y );
+  public abstract void repaint( Graphics g, int paintX, int paintY );
 
-  public boolean pointerDragged( int x, int y );
+  public abstract void keyPressed( int keyCode );
 
-  public int getX();
+  public abstract void keyReleased( int keyCode );
 
-  public int getY();
+  public abstract void keyRepeated( int keyCode );
 
-  public int getWidth();
+  public abstract void pointerPressed( int x, int y );
 
-  public int getHeight();
+  public abstract void pointerReleased( int x, int y );
 
-  public void setTouchOrientation( boolean touchOrientation );
+  public abstract boolean pointerDragged( int x, int y );
 }

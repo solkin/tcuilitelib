@@ -58,11 +58,12 @@ public class BBUtil {
   };
   private static Vector styledStrings = new Vector();
 
-  public static BBResult processText( String text, int x, int y, int width ) throws Throwable {
+  public static BBResult processText( String text, int x, int y, int width, 
+          int baseColor ) throws Throwable {
     BBResult bbResult = new BBResult();
     bbResult.originalString = new String();
     styledStrings.removeAllElements();
-    style = new BBStyle( Theme.font );
+    style = new BBStyle( Theme.font, baseColor );
     if ( Settings.BB_FORMATTING_ENABLED ) {
       if ( elements == null ) {
         elements = new Stack();

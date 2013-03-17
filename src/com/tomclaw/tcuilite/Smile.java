@@ -12,16 +12,10 @@ import javax.microedition.lcdui.Graphics;
 public class Smile extends PaneObject {
 
   public SmileLink smileLink = null;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
   public boolean isUpSize = true;
   public boolean isCenteredHorizontally = true;
   public boolean isCenteredVertically = true;
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int actOuterLight = 0xBDC7FF;
   public static int actInnerLight = 0x8C9AFF;
 
@@ -36,22 +30,20 @@ public class Smile extends PaneObject {
       g.setColor( actInnerLight );
       g.drawRect( x + 1, y + 1, width - 2, height - 2 );
     }
-    smileLink.updateLocation( x + ( isCenteredHorizontally ? ( width / 2 - smileLink.getWidth() / 2 ) : 0 ),
-            y + ( isCenteredVertically ? ( height / 2 - smileLink.getHeight() / 2 ) : ( isUpSize ? Theme.upSize : 0 ) ) );
+    smileLink.updateLocation( x + ( isCenteredHorizontally
+            ? ( width / 2 - smileLink.getWidth() / 2 ) : 0 ),
+            y + ( isCenteredVertically
+            ? ( height / 2 - smileLink.getHeight() / 2 )
+            : ( isUpSize ? Theme.upSize : 0 ) ) );
     if ( g != null ) {
-      Smiles.smiles[smileLink.smileIndex].paint( g, smileLink.x, smileLink.y, smileLink.frameIndex );
+      Smiles.smiles[smileLink.smileIndex].paint( g, smileLink.x, smileLink.y,
+              smileLink.frameIndex );
       smileLink.analyzeFrame();
     }
   }
 
-  public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
-  }
-
   public void setSize( int width, int height ) {
-    this.width = width;
-    this.height = height;
+    super.setSize( width, height );
     getHeight();
   }
 
@@ -73,18 +65,6 @@ public class Smile extends PaneObject {
   public void pointerDragged( int x, int y ) {
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
   public int getHeight() {
     if ( height == 0 ) {
       height = smileLink.getHeight() + ( isUpSize ? Theme.upSize * 2 : 0 );
@@ -92,13 +72,7 @@ public class Smile extends PaneObject {
     return height;
   }
 
-  public void setTouchOrientation( boolean touchOrientation ) {
-  }
-
   public String getStringValue() {
     return String.valueOf( smileLink.smileIndex );
-  }
-
-  public void actionPerformed() {
   }
 }

@@ -2,6 +2,7 @@ package com.tomclaw.tcuilite;
 
 import com.tomclaw.tcuilite.smiles.Smiles;
 import com.tomclaw.utils.DrawUtil;
+import com.tomclaw.utils.LogUtil;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -10,21 +11,10 @@ import javax.microedition.lcdui.Graphics;
  * http://www.tomclaw.com/
  * @author Solkin
  */
-public class Pane implements GObject {
+public class Pane extends Scroll {
 
-  public String name = null;
   public Vector items = null;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
-  public int yOffset = 0;
-  public int moveStep = 10;
-  /**
-   * Runtime
-   */
-  public int prevYDrag = -1;
-  public boolean isScrollAction = false;
+  /** Runtime **/
   private PaneObject paneObject;
   private int startIndex = 0;
   private int finlIndex = 0;
@@ -34,34 +24,14 @@ public class Pane implements GObject {
   public int psvLstFocusedIndex = -1;
   public PaneEvent actionPerformedEvent = null;
   public boolean isSelectedState = false;
-  /**
-   * Colors
-   */
-  public static int foreColor = 0x555555;
+  /** Colors **/
   public static int backColor = 0xFFFFFF;
-  public static int hrLine = 0xDDDDDD;
-  public static int selectedGradFrom = 0xDDDDFF;
-  public static int selectedGradTo = 0xBBAAEE;
-  public static int selectedUpOutline = 0xCCCCEE;
-  public static int selectedBottomOutline = 0xAAAACC;
-  public static int unSelectedGradFrom = 0xFFFFFF;
-  public static int unSelectedGradTo = 0xF7F3F7;
-  public static int scrollBack = 0xFFFFFF;
-  public static int scrollGradFrom = 0xDDDDDD;
-  public static int scrollGradTo = 0xAAAAAA;
-  public static int scrollBorder = 0xAAAAAA;
-  public static int scrollFix = 0x888888;
-  public static int scrollFixShadow = 0xDDDDDD;
-  /**
-   * Sizes
-   */
-  private int scrollStart;
-  private int scrollHeight;
+  /** Sizes **/
   private int yLocation = 0;
-  public int maxHeight;
+  public int moveStep = 10;
 
   /**
-   * Pane initializing. Window must be placed here only if Pane containts
+   * Pane initializing. Window must be placed here only if Pane contains
    * ChatItem
    *
    * @param window
@@ -69,23 +39,22 @@ public class Pane implements GObject {
   public Pane( final Window window, boolean isAnimated ) {
     items = new Vector();
     moveStep = Theme.font.getHeight();
+    repaintScrollWidth = Theme.scrollWidth;
     if ( isAnimated && Smiles.smilesType == 0x00 ) {
       animationThread = new Thread() {
-
         public void run() {
           while ( true ) {
             try {
               Thread.sleep( 100 );
+              /** Checking for this object is fully on screen and there is no scrolling **/
+              if ( Screen.screen.activeWindow != null && Screen.screen.activeWindow.equals( window )
+                      && !Screen.screen.isSwitchMode && !Screen.screen.isSlideMode
+                      && !Screen.screen.activeWindow.soft.isLeftPressed && !Screen.screen.activeWindow.soft.isRightPressed
+                      && Screen.screen.activeWindow.dialog == null && prevYDrag == -1 ) {
+                Screen.screen.repaint( Screen.REPAINT_STATE_SMILE );
+              }
             } catch ( InterruptedException ex ) {
-            }
-            if ( prevYDrag != -1 ) {
-              continue;
-            }
-            if ( Screen.screen.activeWindow != null && Screen.screen.activeWindow.equals( window )
-                && !Screen.screen.isSwitchMode && !Screen.screen.isSlideMode
-                && !Screen.screen.activeWindow.soft.isLeftPressed && !Screen.screen.activeWindow.soft.isRightPressed
-                && Screen.screen.activeWindow.dialog == null ) {
-              Screen.screen.repaint( Screen.REPAINT_STATE_SMILE );
+              LogUtil.outMessage( "Pane animation exception", true );
             }
           }
         }
@@ -107,7 +76,7 @@ public class Pane implements GObject {
     finlIndex = -1;
     yLocation = 0;
     for ( int c = 0; c < items.size(); c++ ) {
-      paneObject = ( PaneObject ) items.elementAt( c );
+      paneObject = (PaneObject) items.elementAt( c );
       if ( !paneObject.getVisible() ) {
         continue;
       }
@@ -132,7 +101,7 @@ public class Pane implements GObject {
         }
       }
       if ( paintY + y + yLocation + paneObject.getHeight() - yOffset > 0
-          && yLocation - yOffset < height ) {
+              && yLocation - yOffset < height ) {
         if ( startIndex == -1 ) {
           startIndex = c;
         }
@@ -143,43 +112,12 @@ public class Pane implements GObject {
       yLocation += paneObject.getHeight() + 1;
     }
     focusedIndex = -1;
-    maxHeight = yLocation;
+    totalHeight = yLocation;
     if ( finlIndex == -1 ) {
       finlIndex = items.size() - 1;
     }
-    /**
-     * Scroll
-     */
-    if ( Theme.scrollWidth > 0 && !items.isEmpty() ) {
-      g.setColor( scrollBack );
-      g.fillRect( paintX + x + width - Theme.scrollWidth, paintY + y, Theme.scrollWidth, height );
-      if ( maxHeight > height ) {
-        scrollStart = height * yOffset / maxHeight;
-        scrollHeight = height * height / maxHeight;
-        DrawUtil.fillHorizontalGradient( g, paintX + x + width - Theme.scrollWidth, paintY + y + scrollStart, Theme.scrollWidth, scrollHeight, scrollGradFrom, scrollGradTo );
-        if ( scrollHeight > 6 ) {
-          g.setColor( scrollFixShadow );
-          g.fillRect( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 1, Theme.scrollWidth - 2, 5 );
-          g.setColor( scrollFix );
-          g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 - 2 );
-          g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 );
-          g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 + 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 + 2 );
-        }
-      }
-      g.setColor( scrollBorder );
-      g.drawRect( paintX + x + width - Theme.scrollWidth - 1, paintY + y + height * yOffset / maxHeight, Theme.scrollWidth, height * height / maxHeight );
-      g.drawLine( paintX + x + width - Theme.scrollWidth - 1, paintY + y, paintX + x + width - Theme.scrollWidth - 1, paintY + y + height - 1 );
-    }
-  }
-
-  public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public void setSize( int width, int height ) {
-    this.width = width;
-    this.height = height;
+    /** Scroll **/
+    super.repaint( g, paintX, paintY );
   }
 
   public void keyPressed( int keyCode ) {
@@ -279,21 +217,21 @@ public class Pane implements GObject {
       actionObject.pointerDragged( x, y );
       actionObject = null;
     }
-    if ( items.isEmpty() || maxHeight < height ) {
+    if ( items.isEmpty() || totalHeight < height ) {
       return false;
     }
     if ( isScrollAction ) {
       scrollStart = y - this.y - scrollHeight / 2;
-      yOffset = scrollStart * maxHeight / height;
+      yOffset = scrollStart * totalHeight / height;
       if ( yOffset < 0 ) {
         yOffset = 0;
-      } else if ( yOffset > maxHeight - height ) {
-        yOffset = maxHeight - height;
+      } else if ( yOffset > totalHeight - height ) {
+        yOffset = totalHeight - height;
       } else {
         return true;
       }
       return false;
-    } else if ( maxHeight > height ) {
+    } else if ( totalHeight > height ) {
       if ( prevYDrag == -1 ) {
         prevYDrag = yOffset + y;
         return true;
@@ -301,38 +239,14 @@ public class Pane implements GObject {
       yOffset = prevYDrag - y;
       if ( yOffset < 0 ) {
         yOffset = 0;
-      } else if ( yOffset > maxHeight - height ) {
-        yOffset = maxHeight - height;
+      } else if ( yOffset > totalHeight - height ) {
+        yOffset = totalHeight - height;
       } else {
         return true;
       }
       return false;
     }
     return true;
-  }
-
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public void setTouchOrientation( boolean touchOrientation ) {
-    if ( touchOrientation ) {
-      Theme.scrollWidth = 15;
-    } else {
-      Theme.scrollWidth = 5;
-    }
   }
 
   /**
@@ -344,7 +258,7 @@ public class Pane implements GObject {
     }
     int t_FocusedIndex = -1;
     for ( int c = 0; c <= finlIndex; c++ ) {
-      paneObject = ( PaneObject ) items.elementAt( c );
+      paneObject = (PaneObject) items.elementAt( c );
       if ( paneObject.getFocusable() && paneObject.getVisible() ) {
         if ( paneObject.getFocused() ) {
           t_FocusedIndex = c;
@@ -357,22 +271,20 @@ public class Pane implements GObject {
           }
           paneObject.setFocused( true );
           if ( paneObject.getY() + paneObject.getHeight() > y + height ) {
-            /**
-             * Object not visible
-             */
+            /** Object not visible **/
             yOffset -= y - paneObject.getY() + ( ( paneObject.getHeight() > height ) ? 0 : ( height - paneObject.getHeight() - 1 ) );
           }
-          paneObject = ( PaneObject ) items.elementAt( t_FocusedIndex );
+          paneObject = (PaneObject) items.elementAt( t_FocusedIndex );
           paneObject.setFocused( false );
           paneObject = null;
           break;
         }
       }
     }
-    if ( paneObject != null && maxHeight > height ) {
-      yOffset += ( ( maxHeight - height - yOffset ) > moveStep ) ? moveStep : ( maxHeight - height - yOffset );
-      if ( yOffset > maxHeight - height ) {
-        yOffset = maxHeight - height;
+    if ( paneObject != null && totalHeight > height ) {
+      yOffset += ( ( totalHeight - height - yOffset ) > moveStep ) ? moveStep : ( totalHeight - height - yOffset );
+      if ( yOffset > totalHeight - height ) {
+        yOffset = totalHeight - height;
       }
     }
   }
@@ -383,7 +295,7 @@ public class Pane implements GObject {
     }
     int t_FocusedIndex = -1;
     for ( int c = items.size() - 1; c >= startIndex; c-- ) {
-      paneObject = ( PaneObject ) items.elementAt( c );
+      paneObject = (PaneObject) items.elementAt( c );
       if ( paneObject.getFocusable() && paneObject.getVisible() ) {
         if ( paneObject.getFocused() ) {
           t_FocusedIndex = c;
@@ -395,14 +307,14 @@ public class Pane implements GObject {
           if ( paneObject.getY() - y < 0 ) {
             yOffset -= y - paneObject.getY() + ( ( paneObject.getHeight() > height ) ? ( height - paneObject.getHeight() - 1 ) : 0 );
           }
-          paneObject = ( PaneObject ) items.elementAt( t_FocusedIndex );
+          paneObject = (PaneObject) items.elementAt( t_FocusedIndex );
           paneObject.setFocused( false );
           paneObject = null;
           break;
         }
       }
     }
-    if ( paneObject != null && maxHeight > height ) {
+    if ( paneObject != null && totalHeight > height ) {
       yOffset -= ( yOffset > moveStep ) ? moveStep : yOffset;
     }
   }
@@ -412,7 +324,7 @@ public class Pane implements GObject {
       if ( c >= items.size() ) {
         break;
       }
-      paneObject = ( PaneObject ) items.elementAt( c );
+      paneObject = (PaneObject) items.elementAt( c );
       if ( paneObject.getFocusable() && paneObject.getVisible() ) {
         if ( paneObject.getFocused() ) {
           return paneObject;
@@ -424,20 +336,20 @@ public class Pane implements GObject {
 
   public PaneObject getFocusedPaneObject( int x, int y ) {
     for ( int c = startIndex; c <= finlIndex; c++ ) {
-      paneObject = ( PaneObject ) items.elementAt( c );
+      paneObject = (PaneObject) items.elementAt( c );
       if ( paneObject.getFocusable() && paneObject.getVisible() ) {
         if ( ( paneObject.getX() <= x ) && ( paneObject.getX() + paneObject.getWidth() >= x )
-            && ( paneObject.getY() <= y ) && ( paneObject.getY() + paneObject.getHeight() >= y ) ) {
+                && ( paneObject.getY() <= y ) && ( paneObject.getY() + paneObject.getHeight() >= y ) ) {
           if ( !paneObject.getFocused() ) {
             for ( int i = 0; i < items.size(); i++ ) {
               if ( i != c ) {
-                paneObject = ( PaneObject ) items.elementAt( i );
+                paneObject = (PaneObject) items.elementAt( i );
                 paneObject.setFocused( false );
               }
             }
             isSelectedState = false;
           }
-          paneObject = ( PaneObject ) items.elementAt( c );
+          paneObject = (PaneObject) items.elementAt( c );
           if ( !paneObject.getFocused() ) {
             paneObject.setFocused( true );
           }
@@ -452,11 +364,11 @@ public class Pane implements GObject {
     items.addElement( paneObject );
   }
 
-  public void setFocused( int index ) {
-    this.focusedIndex = index;
+  public void setFocused( int focusedIndex ) {
+    this.focusedIndex = focusedIndex;
   }
 
   public int getFocused() {
-    return this.focusedIndex;
+    return focusedIndex;
   }
 }

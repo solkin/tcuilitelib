@@ -13,28 +13,21 @@ public class Gauge extends PaneObject {
   public String caption = "";
   public int value = 0;
   public int maxValue = 100;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
-  /**
-   * Runtime
-   */
-  public Graphics g = null;
+  /** Runtime **/
   private String tempString = "";
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int backColorGradFrom = 0xFFF7FF;
   public static int backColorGradFinl = 0xFFFEFF;
+  public static int unactForeColor = 0x424142;
+  public static int unactForeShadowColor = 0xDEDFDE;
   public static int unactOnlTopBorder = 0xBDBABD;
   public static int unactBotBorder = 0xADAAAD;
   public static int unactInTopBorder = 0xE7E3E7;
   public static int unactInOnlBotBorder = 0xD6D3D6;
   public static int unactGradFrom = 0xD6D3D6;
   public static int unactGradTo = 0xADAEAD;
-  public static int foreColor = 0x424142;
-  public static int foreShadowColor = 0xDEDFDE;
+  public static int actForeColor = 0x424142;
+  public static int actForeShadowColor = 0xDEDFDE;
   public static int actOnlTopBorder = 0xB5B2E7;
   public static int actBotBorder = 0xA59ECE;
   public static int actInOnlBotBorder = 0xC6BEF7;
@@ -58,9 +51,12 @@ public class Gauge extends PaneObject {
 
       g.setColor( actInOnlBotBorder );
       g.drawLine( x + 3, y + height - 3, x + width - 3, y + height - 3 );
-      DrawUtil.fillVerticalGradient( g, x + 3, y + 3, width - 6, height - 6, backColorGradFrom, backColorGradFinl ); // Back
+      DrawUtil.fillVerticalGradient( g, x + 3, y + 3, width - 6 + 1, height - 6,
+              backColorGradFrom, backColorGradFinl );
       if ( value > 0 ) {
-        DrawUtil.fillSharpVerticalGradient( g, x + 3, y + 3, ( width - 6 ) * value / maxValue, height - 6, actGradFrom, actGradMidd, actGradAftr, actGradFinl, 70 ); // Value
+        DrawUtil.fillSharpVerticalGradient( g, x + 3, y + 3,
+                ( width - 6 ) * value / maxValue + 1, height - 6, actGradFrom,
+                actGradMidd, actGradAftr, actGradFinl, 70 );
       }
       g.setColor( actOuterLight );
       g.drawRect( x, y, width, height );
@@ -75,29 +71,31 @@ public class Gauge extends PaneObject {
       g.drawRect( x + 3, y + 3, width - 6, height - 6 );
       g.setColor( unactInOnlBotBorder );
       g.drawLine( x + 3, y + height - 3, x + width - 3, y + height - 3 );
-      DrawUtil.fillVerticalGradient( g, x + 4, y + 4, width - 8, height - 8 + 1, backColorGradFrom, backColorGradFinl ); // Back
+      DrawUtil.fillVerticalGradient( g, x + 4, y + 4, width - 8 + 1, height - 8 + 1,
+              backColorGradFrom, backColorGradFinl );
       if ( value > 0 ) {
-        DrawUtil.fillVerticalGradient( g, x + 4, y + 4, ( width - 8 ) * value / maxValue, height - 8 + 1, unactGradFrom, unactGradTo );
+        DrawUtil.fillVerticalGradient( g, x + 4, y + 4,
+                ( width - 8 ) * value / maxValue + 1, height - 8 + 1,
+                unactGradFrom, unactGradTo );
       }
     }
     g.setFont( Theme.font );
     tempString = String.valueOf( 100 * value / maxValue ) + "%";
-    g.setColor( foreShadowColor );
-    g.drawString( caption, x + 2 + Theme.upSize + 1, y + height / 2 - Theme.font.getHeight() / 2 + 1, Graphics.TOP | Graphics.LEFT );
-    g.drawString( tempString, x + width - 2 - Theme.upSize - Theme.font.stringWidth( tempString ) + 1, y + height / 2 - Theme.font.getHeight() / 2 + 1, Graphics.TOP | Graphics.LEFT );
-    g.setColor( foreColor );
-    g.drawString( caption, x + 2 + Theme.upSize, y + height / 2 - Theme.font.getHeight() / 2, Graphics.TOP | Graphics.LEFT );
-    g.drawString( tempString, x + width - 2 - Theme.upSize - Theme.font.stringWidth( tempString ), y + height / 2 - Theme.font.getHeight() / 2, Graphics.TOP | Graphics.LEFT );
-  }
-
-  public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public void setSize( int width, int height ) {
-    this.width = width;
-    this.height = height;
+    g.setColor( isFocused ? actForeShadowColor : unactForeShadowColor );
+    g.drawString( caption, x + 2 + Theme.upSize + 1,
+            y + height / 2 - Theme.font.getHeight() / 2 + 1,
+            Graphics.TOP | Graphics.LEFT );
+    g.drawString( tempString, x + width - 2 - Theme.upSize
+            - Theme.font.stringWidth( tempString ) + 1, y + height / 2
+            - Theme.font.getHeight() / 2 + 1, Graphics.TOP | Graphics.LEFT );
+    g.setColor( isFocused ? actForeColor : unactForeColor );
+    g.drawString( caption, x + 2 + Theme.upSize,
+            y + height / 2 - Theme.font.getHeight() / 2,
+            Graphics.TOP | Graphics.LEFT );
+    g.drawString( tempString,
+            x + width - 2 - Theme.upSize - Theme.font.stringWidth( tempString ),
+            y + height / 2 - Theme.font.getHeight() / 2,
+            Graphics.TOP | Graphics.LEFT );
   }
 
   public void keyPressed( int keyCode ) {
@@ -134,26 +132,11 @@ public class Gauge extends PaneObject {
   public void pointerDragged( int x, int y ) {
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
   public int getHeight() {
     height = Theme.font.getHeight() + Theme.upSize * 2 + 4;
     return height;
   }
 
-  public void setTouchOrientation( boolean touchOrientation ) {
-  }
-  
   public int getValue() {
     return value;
   }
@@ -175,11 +158,8 @@ public class Gauge extends PaneObject {
     }
     this.maxValue = maxValue;
   }
-  
+
   public String getStringValue() {
     return String.valueOf( value );
-  }
-
-  public void actionPerformed() {
   }
 }

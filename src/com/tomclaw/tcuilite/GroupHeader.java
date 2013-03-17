@@ -12,7 +12,7 @@ public class GroupHeader {
   public String title;
   public boolean isCollapsed = true;
   protected Vector childs = null;
-  public Thread thread;
+  public Runnable runnable;
   public boolean isGroupVisible = true;
   public boolean isItemsVisible = true;
   /**
@@ -81,8 +81,8 @@ public class GroupHeader {
   }
 
   public void actionPerformed () {
-    if ( thread != null ) {
-      thread.run ();
+    if ( runnable != null ) {
+      runnable.run ();
     }
   }
 }

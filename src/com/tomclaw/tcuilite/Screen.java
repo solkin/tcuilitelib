@@ -2,7 +2,6 @@ package com.tomclaw.tcuilite;
 
 import com.tomclaw.images.ImageGroup;
 import com.tomclaw.images.Splitter;
-import com.tomclaw.utils.DrawUtil;
 import java.util.Hashtable;
 import javax.microedition.lcdui.*;
 import javax.microedition.midlet.MIDlet;
@@ -86,6 +85,11 @@ public class Screen extends Canvas {
     screen = Screen.this;
     runtime = Runtime.getRuntime();
     isPointerEvents = hasPointerEvents();
+    if ( isPointerEvents ) {
+      Theme.scrollWidth = 15;
+    } else {
+      Theme.scrollWidth = 5;
+    }
     setFullScreenMode( true );
     textBox = new javax.microedition.lcdui.TextBox( "title", "text", 1024, TextField.ANY );
     textBox.addCommand( new Command( "OK", Command.OK, 1 ) );
@@ -125,7 +129,6 @@ public class Screen extends Canvas {
 
   public void show() {
     Display.getDisplay( midlet ).setCurrent( this );
-    DrawUtil._rgbData = new int[ ( getWidth() > getHeight() ? getWidth() : getHeight() ) ];
   }
 
   public void setActiveWindow( Window window ) {
@@ -369,7 +372,7 @@ public class Screen extends Canvas {
       /** Hot keys here **/
       if ( hotkeys.containsKey( Integer.toString( keyCode ) )
               && ( activeWindow != null && !( activeWindow.soft.isLeftPressed || activeWindow.soft.isRightPressed ) ) ) {
-        ( ( Thread ) hotkeys.get( Integer.toString( keyCode ) ) ).run();
+        ( ( Runnable ) hotkeys.get( Integer.toString( keyCode ) ) ).run();
       }
       activeWindow.keyPressed( keyCode );
       screen.repaint();

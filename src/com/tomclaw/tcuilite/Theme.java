@@ -28,9 +28,10 @@ public class Theme {
   public static final int BLOCK_PANE = 12;
   public static final int BLOCK_POPUP = 13;
   public static final int BLOCK_RADIO = 14;
-  public static final int BLOCK_SMILE = 15;
-  public static final int BLOCK_SOFT = 16;
-  public static final int BLOCK_TAB = 17;
+  public static final int BLOCK_SCROLL = 15;
+  public static final int BLOCK_SMILE = 16;
+  public static final int BLOCK_SOFT = 17;
+  public static final int BLOCK_TAB = 18;
   /** Fonts **/
   public static Font font = FontUtil.getFont( Font.FACE_PROPORTIONAL,
           Font.STYLE_PLAIN, Font.SIZE_SMALL );
@@ -123,14 +124,16 @@ public class Theme {
     switch ( type ) {
       case BLOCK_BUTTON: {
         /** Button **/
+        Button.unactForeColor = theme[offset++];
+        Button.unactForeShadowColor = theme[offset++];
         Button.unactOnlTopBorder = theme[offset++];
         Button.unactBotBorder = theme[offset++];
         Button.unactInTopBorder = theme[offset++];
         Button.unactInOnlBotBorder = theme[offset++];
         Button.unactGradFrom = theme[offset++];
         Button.unactGradTo = theme[offset++];
-        Button.foreColor = theme[offset++];
-        Button.foreShadowColor = theme[offset++];
+        Button.actForeColor = theme[offset++];
+        Button.actForeShadowColor = theme[offset++];
         Button.actOnlTopBorder = theme[offset++];
         Button.actBotBorder = theme[offset++];
         Button.actInOnlBotBorder = theme[offset++];
@@ -148,7 +151,6 @@ public class Theme {
         /** Chat item **/
         ChatItem.foreColor = theme[offset++];
         ChatItem.titleColor = theme[offset++];
-        ChatItem.backColor = theme[offset++];
         ChatItem.borderColor = theme[offset++];
         ChatItem.actOuterLight = theme[offset++];
         ChatItem.actInnerLight = theme[offset++];
@@ -157,9 +159,6 @@ public class Theme {
       case BLOCK_CHECK: {
         /** Check **/
         Check.foreColor = theme[offset++];
-        Check.backColor = theme[offset++];
-        Check.borderColor = theme[offset++];
-        Check.focusedBackColor = theme[offset++];
         Check.actOuterLight = theme[offset++];
         Check.actInnerLight = theme[offset++];
         break;
@@ -168,12 +167,11 @@ public class Theme {
         /** Dialog **/
         Dialog.titleColor = theme[offset++];
         Dialog.textColor = theme[offset++];
-        Dialog.a_backColor = theme[offset++];
-        Dialog.p_backColor = theme[offset++];
+        Dialog.alphaBackColor = theme[offset++];
+        Dialog.plainBackColor = theme[offset++];
         Dialog.hrLineColor = theme[offset++];
         Dialog.hrLineShadow = theme[offset++];
-        Dialog.shadowColorFrom = theme[offset++];
-        Dialog.shadowColorTo = theme[offset++];
+        Dialog.shadowColor = theme[offset++];
         break;
       }
       case BLOCK_FIELD: {
@@ -181,7 +179,6 @@ public class Theme {
         Field.foreColor = theme[offset++];
         Field.backColor = theme[offset++];
         Field.borderColor = theme[offset++];
-        Field.focusedBackColor = theme[offset++];
         Field.actOuterLight = theme[offset++];
         Field.actInnerLight = theme[offset++];
         break;
@@ -190,14 +187,16 @@ public class Theme {
         /** Gauge **/
         Gauge.backColorGradFrom = theme[offset++];
         Gauge.backColorGradFinl = theme[offset++];
+        Gauge.unactForeColor = theme[offset++];
+        Gauge.unactForeShadowColor = theme[offset++];
         Gauge.unactOnlTopBorder = theme[offset++];
         Gauge.unactBotBorder = theme[offset++];
         Gauge.unactInTopBorder = theme[offset++];
         Gauge.unactInOnlBotBorder = theme[offset++];
         Gauge.unactGradFrom = theme[offset++];
         Gauge.unactGradTo = theme[offset++];
-        Gauge.foreColor = theme[offset++];
-        Gauge.foreShadowColor = theme[offset++];
+        Gauge.actForeColor = theme[offset++];
+        Gauge.actForeShadowColor = theme[offset++];
         Gauge.actOnlTopBorder = theme[offset++];
         Gauge.actBotBorder = theme[offset++];
         Gauge.actInOnlBotBorder = theme[offset++];
@@ -209,35 +208,32 @@ public class Theme {
         Gauge.actInnerLight = theme[offset++];
         break;
       }
+      case BLOCK_SCROLL: {
+        /** Scroll **/
+        Scroll.scrollBack = theme[offset++];
+        Scroll.scrollGradFrom = theme[offset++];
+        Scroll.scrollGradTo = theme[offset++];
+        Scroll.scrollBorder = theme[offset++];
+        Scroll.scrollFix = theme[offset++];
+        Scroll.scrollFixShadow = theme[offset++];
+        break;
+      }
       case BLOCK_GRID: {
         /** Grid **/
         Grid.backColor = theme[offset++];
         Grid.hrLine = theme[offset++];
-        Grid.scrollBack = theme[offset++];
-        Grid.scrollGradFrom = theme[offset++];
-        Grid.scrollGradTo = theme[offset++];
-        Grid.scrollBorder = theme[offset++];
-        Grid.scrollFix = theme[offset++];
-        Grid.scrollFixShadow = theme[offset++];
         break;
       }
       case BLOCK_GROUP: {
         /** Group **/
         Group.foreColor = theme[offset++];
+        Group.foreSelColor = theme[offset++];
         Group.backColor = theme[offset++];
         Group.hrLine = theme[offset++];
         Group.selectedGradFrom = theme[offset++];
         Group.selectedGradTo = theme[offset++];
         Group.selectedUpOutline = theme[offset++];
         Group.selectedBottomOutline = theme[offset++];
-        Group.unSelectedGradFrom = theme[offset++];
-        Group.unSelectedGradTo = theme[offset++];
-        Group.scrollBack = theme[offset++];
-        Group.scrollGradFrom = theme[offset++];
-        Group.scrollGradTo = theme[offset++];
-        Group.scrollBorder = theme[offset++];
-        Group.scrollFix = theme[offset++];
-        Group.scrollFixShadow = theme[offset++];
         break;
       }
       case BLOCK_HEADER: {
@@ -253,7 +249,6 @@ public class Theme {
       case BLOCK_LABEL: {
         /** Label **/
         Label.foreColor = theme[offset++];
-        Label.backColor = theme[offset++];
         Label.borderColor = theme[offset++];
         Label.focusedBackColor = theme[offset++];
         Label.actOuterLight = theme[offset++];
@@ -267,43 +262,22 @@ public class Theme {
       case BLOCK_LIST: {
         /** List **/
         List.foreColor = theme[offset++];
+        List.foreSelColor = theme[offset++];
         List.backColor = theme[offset++];
         List.hrLine = theme[offset++];
         List.selectedGradFrom = theme[offset++];
         List.selectedGradTo = theme[offset++];
         List.selectedUpOutline = theme[offset++];
         List.selectedBottomOutline = theme[offset++];
-        List.unSelectedGradFrom = theme[offset++];
-        List.unSelectedGradTo = theme[offset++];
-        List.scrollBack = theme[offset++];
-        List.scrollGradFrom = theme[offset++];
-        List.scrollGradTo = theme[offset++];
-        List.scrollBorder = theme[offset++];
-        List.scrollFix = theme[offset++];
-        List.scrollFixShadow = theme[offset++];
         break;
       }
       case BLOCK_PANE: {
         /** Pane **/
-        Pane.foreColor = theme[offset++];
         Pane.backColor = theme[offset++];
-        Pane.hrLine = theme[offset++];
-        Pane.selectedGradFrom = theme[offset++];
-        Pane.selectedGradTo = theme[offset++];
-        Pane.selectedUpOutline = theme[offset++];
-        Pane.selectedBottomOutline = theme[offset++];
-        Pane.unSelectedGradFrom = theme[offset++];
-        Pane.unSelectedGradTo = theme[offset++];
-        Pane.scrollBack = theme[offset++];
-        Pane.scrollGradFrom = theme[offset++];
-        Pane.scrollGradTo = theme[offset++];
-        Pane.scrollBorder = theme[offset++];
-        Pane.scrollFix = theme[offset++];
-        Pane.scrollFixShadow = theme[offset++];
         break;
       }
       case BLOCK_POPUP: {
-        /** Popup **/
+        /** Pop-up **/
         Popup.foreColor = theme[offset++];
         Popup.foreSelColor = theme[offset++];
         Popup.backGradFrom = theme[offset++];
@@ -312,29 +286,14 @@ public class Theme {
         Popup.selectedGradTo = theme[offset++];
         Popup.selectedUpOutline = theme[offset++];
         Popup.selectedBottomOutline = theme[offset++];
-        Popup.unSelectedGradFrom = theme[offset++];
-        Popup.unSelectedGradTo = theme[offset++];
-        Popup.scrollBack = theme[offset++];
-        Popup.scrollGradFrom = theme[offset++];
-        Popup.scrollGradTo = theme[offset++];
-        Popup.scrollBorder = theme[offset++];
-        Popup.scrollFix = theme[offset++];
-        Popup.scrollFixShadow = theme[offset++];
-        Popup.shadowColorFrom = theme[offset++];
-        Popup.shadowColorTo = theme[offset++];
-        Popup.a_backColor = theme[offset++];
-        Popup.p_backColor = theme[offset++];
-        Popup.popupBorder = theme[offset++];
-        Popup.hrLineColor = theme[offset++];
-        Popup.hrLineShadow = theme[offset++];
+        Popup.shadowBorder = theme[offset++];
+        Popup.alphaBackColor = theme[offset++];
+        Popup.shadowColor = theme[offset++];
         break;
       }
       case BLOCK_RADIO: {
         /** Radio **/
         Radio.foreColor = theme[offset++];
-        Radio.backColor = theme[offset++];
-        Radio.borderColor = theme[offset++];
-        Radio.focusedBackColor = theme[offset++];
         Radio.actOuterLight = theme[offset++];
         Radio.actInnerLight = theme[offset++];
         break;
@@ -357,13 +316,16 @@ public class Theme {
       }
       case BLOCK_TAB: {
         /** Tab **/
-        Tab.foreColor = theme[offset++];
-        Tab.backColor = theme[offset++];
-        Tab.hrLine = theme[offset++];
+        Tab.backGradFrom = theme[offset++];
+        Tab.backGradTo = theme[offset++];
+        Tab.selectedForeColor = theme[offset++];
         Tab.selectedGradFrom = theme[offset++];
         Tab.selectedGradTo = theme[offset++];
         Tab.selectedUpOutline = theme[offset++];
         Tab.selectedBottomOutline = theme[offset++];
+        Tab.unSelectedForeColor = theme[offset++];
+        Tab.unSelectedGradFrom = theme[offset++];
+        Tab.unSelectedGradTo = theme[offset++];
         Tab.unSelectedUpOutline = theme[offset++];
         Tab.unSelectedBottomOutline = theme[offset++];
         break;

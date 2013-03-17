@@ -34,6 +34,9 @@ public class PlainContent implements Content {
     update();
   }
 
+  public void setColor( int color ) {
+  }
+
   public String getText() {
     return text;
   }
@@ -107,5 +110,4 @@ public class PlainContent implements Content {
               + interlineheight ), Graphics.TOP | Graphics.LEFT );
     }
   }
-  
 }

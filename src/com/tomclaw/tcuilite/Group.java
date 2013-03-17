@@ -14,89 +14,66 @@ import javax.microedition.rms.RecordStoreException;
  * http://www.tomclaw.com/
  * @author Solkin
  */
-public class Group implements GObject {
+public class Group extends Scroll {
 
-  public String name = null;
   public RecordStore recordStore;
   public GroupRmsRenderer groupRmsRenderer = null;
   public Vector items = null;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
-  public int yOffset = 0;
   public int selectedRow = 0;
   public int selectedColumn = 0;
-  public int l_selectedLevel = 0;
-  static Image _plus;
-  static Image minus;
+  static Image _plus, minus;
   public int columnCount = 1;
   public int minWeight = -3;
   public int maxWeight = 0;
   public boolean isShowGroups = true;
   public boolean isHideEmptyGroups = false;
-  /**
-   * Runtime
-   */
+  /** Runtime **/
   public int startIndex = 0;
   public int finlIndex = 0;
   private int lineCounter = 0;
   private int columnMarker = 0;
   public int totalItemsCount = 0;
-  public int prevYDrag = -1;
-  public boolean isScrollAction = false;
   public boolean isPointerAction = false;
   private GroupChild tempGroupChild;
   private GroupHeader tempGroupHeader;
   public int selectedRealGroup = -1;
   public int selectedRealIndex = -1;
-  private int t_paintCount = 0;
   public GroupEvent actionPerformedEvent = null;
   private boolean retryRepaint = false;
   public boolean isSelectedState = false;
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int foreColor = 0x555555;
+  public static int foreSelColor = 0x555555;
   public static int backColor = 0xFFFFFF;
   public static int hrLine = 0xDDDDDD;
   public static int selectedGradFrom = 0xDDDDFF;
   public static int selectedGradTo = 0xBBAAEE;
   public static int selectedUpOutline = 0xCCCCEE;
   public static int selectedBottomOutline = 0xAAAACC;
-  public static int unSelectedGradFrom = 0xFFFFFF;
-  public static int unSelectedGradTo = 0xF7F3F7;
-  public static int scrollBack = 0xFFFFFF;
-  public static int scrollGradFrom = 0xDDDDDD;
-  public static int scrollGradTo = 0xAAAAAA;
-  public static int scrollBorder = 0xAAAAAA;
-  public static int scrollFix = 0x888888;
-  public static int scrollFixShadow = 0xDDDDDD;
-  /**
-   * Sizes
-   */
+  /** Sizes **/
   public int itemHeight;
-  private int scrollStart;
-  private int scrollHeight;
   public int imageOffset = 0;
-  /**
-   * Images
-   */
+  /** Images **/
   public int[] imageLeftFileHash;
   public int[] imageRightFileHash;
 
   public Group() {
     items = new Vector();
-    try {
-      _plus = Image.createImage( "/res/group00_img.png" );
-      minus = Image.createImage( "/res/group01_img.png" );
-    } catch ( IOException ex ) {
-    }
+    loadGroupImages();
+    repaintScrollWidth = Theme.scrollWidth;
   }
 
   public Group( String fileName ) {
     this();
     openRecordStore( fileName );
+  }
+
+  private void loadGroupImages() {
+    try {
+      _plus = Image.createImage( Settings.GROUP_PLUS_IMAGE );
+      minus = Image.createImage( Settings.GROUP_MINUS_IMAGE );
+    } catch ( IOException ex ) {
+    }
   }
 
   public void addHeader( GroupHeader groupHeader ) {
@@ -116,14 +93,12 @@ public class Group implements GObject {
     finlIndex = startIndex + height / itemHeight;
     /** Counters **/
     lineCounter = -1;
-    t_paintCount = 0;
     /** Paint cycle **/
-    int t_childsCount = 0;
-    int pseudoRealIndex;
+    int t_childsCount = 0, pseudoRealIndex;
     /** Checking for group policy **/
     if ( isShowGroups ) {
       for ( int c = 0; c < items.size(); c++ ) {
-        tempGroupHeader = ( GroupHeader ) getElement( c );
+        tempGroupHeader = (GroupHeader) getElement( c );
         t_childsCount = tempGroupHeader.getChildsCount();
         if ( tempGroupHeader.isGroupVisible && !( isHideEmptyGroups && t_childsCount == 0 ) ) {
           drawItem( g, paintX, paintY, tempGroupHeader.title, null, null, true, tempGroupHeader.isCollapsed, c, -1, -1, -1, false );
@@ -135,7 +110,7 @@ public class Group implements GObject {
           pseudoRealIndex = 0;
           for ( int w = minWeight; w <= maxWeight; w++ ) {
             for ( int i = 0; i < t_childsCount; i++ ) {
-              tempGroupChild = ( GroupChild ) tempGroupHeader.childs.elementAt( i );
+              tempGroupChild = (GroupChild) tempGroupHeader.childs.elementAt( i );
               if ( tempGroupChild.weight == w ) {
                 drawItem( g, paintX, paintY, tempGroupChild.title,
                         tempGroupChild.imageLeftIndex, tempGroupChild.imageRightIndex,
@@ -150,11 +125,11 @@ public class Group implements GObject {
       pseudoRealIndex = 0;
       for ( int w = minWeight; w <= maxWeight; w++ ) {
         for ( int c = 0; c < items.size(); c++ ) {
-          tempGroupHeader = ( GroupHeader ) getElement( c );
+          tempGroupHeader = (GroupHeader) getElement( c );
           if ( tempGroupHeader.isItemsVisible ) {
             t_childsCount += tempGroupHeader.getChildsCount();
             for ( int i = 0; i < tempGroupHeader.getChildsCount(); i++ ) {
-              tempGroupChild = ( GroupChild ) tempGroupHeader.childs.elementAt( i );
+              tempGroupChild = (GroupChild) tempGroupHeader.childs.elementAt( i );
               if ( tempGroupChild.weight == w ) {
                 drawItem( g, paintX, paintY, tempGroupChild.title,
                         tempGroupChild.imageLeftIndex, tempGroupChild.imageRightIndex,
@@ -168,27 +143,8 @@ public class Group implements GObject {
     }
     totalItemsCount = lineCounter + 1;
     /** Scroll **/
-    g.setColor( scrollBack );
-    g.fillRect( paintX + x + width - Theme.scrollWidth, paintY + y, Theme.scrollWidth, height );
-    if ( totalItemsCount * itemHeight > height ) {
-      scrollStart = height * yOffset / ( totalItemsCount * itemHeight );
-      scrollHeight = height * height / ( totalItemsCount * itemHeight );
-      DrawUtil.fillHorizontalGradient( g, paintX + x + width - Theme.scrollWidth, paintY + y + scrollStart, Theme.scrollWidth, scrollHeight, scrollGradFrom, scrollGradTo );
-      if ( scrollHeight > 6 ) {
-        g.setColor( scrollFixShadow );
-        g.fillRect( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 1, Theme.scrollWidth - 2, 5 );
-        g.setColor( scrollFix );
-        g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 - 2 );
-        g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 );
-        g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 + 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 + 2 );
-      }
-      g.setColor( scrollBorder );
-      g.drawRect( paintX + x + width - Theme.scrollWidth - 1, paintY + y + height * yOffset / ( totalItemsCount * itemHeight ), Theme.scrollWidth, height * height / ( totalItemsCount * itemHeight ) );
-      g.drawLine( paintX + x + width - Theme.scrollWidth - 1, paintY + y, paintX + x + width - Theme.scrollWidth - 1, paintY + y + height - 1 );
-    } else {
-      g.setColor( scrollBorder );
-      g.drawLine( paintX + x + width - Theme.scrollWidth - 1, paintY + y, paintX + x + width - Theme.scrollWidth - 1, paintY + y + height - 1 );
-    }
+    totalHeight = totalItemsCount * itemHeight;
+    super.repaint( g, paintX, paintY );
     /** Checking group position **/
     if ( selectedRow >= totalItemsCount ) {
       selectedRow = totalItemsCount - 1;
@@ -217,13 +173,12 @@ public class Group implements GObject {
     } else {
       g.setFont( Theme.titleFont );
     }
-    int objX, objWidth;
-    int objY;
+    int objX, objY, objWidth;
     /** Multicolumn **/
     if ( ( realIndex == -1 || columnCount == 1
             || ( ( groupItemsCount - 1 ) == realIndex
             && ( realIndex - columnCount
-            * ( ( int ) ( realIndex / columnCount ) ) + 1 )
+            * ( (int) ( realIndex / columnCount ) ) + 1 )
             < columnCount ) ) ) {
       objWidth = width - 2 - Theme.scrollWidth;
     } else {
@@ -236,13 +191,11 @@ public class Group implements GObject {
       objX = paintX + x + objWidth * ( realIndex - columnCount
               * ( realIndex / columnCount ) ) + 1;
     }
-    /**  Applying **/
+    /** Applying **/
     columnMarker = ( realIndex - columnCount * ( realIndex / columnCount ) );
     /**  Drawing visible objects **/
     objY = paintY + y + lineCounter * itemHeight - yOffset;
     if ( objY + itemHeight >= 0 && objY - ( paintY + y ) < height ) {
-      t_paintCount++;
-
       g.setColor( hrLine );
       g.drawLine( paintX + x, objY + itemHeight,
               paintX + x + width, objY + itemHeight );
@@ -253,17 +206,18 @@ public class Group implements GObject {
               && columnMarker + 1 < columnCount ) ) ) {
         selectedRealGroup = realGroup;
         selectedRealIndex = sequenceIndex;
-
-        DrawUtil.fillVerticalGradient( g, objX, objY, objWidth, itemHeight,
+        DrawUtil.fillVerticalGradient( g, objX, objY, objWidth + 1, itemHeight,
                 selectedGradFrom, selectedGradTo );
         g.setColor( selectedUpOutline );
         g.drawLine( objX, objY, objX + objWidth, objY );
         g.setColor( selectedBottomOutline );
         g.drawLine( objX, objY + itemHeight, objX + objWidth,
                 objY + itemHeight );
+        g.setColor( foreSelColor );
       } else {
         g.setColor( Group.backColor );
         g.fillRect( objX, objY + 1, objWidth, itemHeight - 1 );
+        g.setColor( foreColor );
       }
       /** Drawing images **/
       imageOffset = 0;
@@ -286,7 +240,6 @@ public class Group implements GObject {
         }
       }
       /** Drawing text **/
-      g.setColor( foreColor );
       g.drawString( title, objX + Theme.upSize + 1 + ( isHeader ? ( _plus.getWidth() + Theme.upSize ) : 0 ) + imageOffset, objY + 1 + ( itemHeight - Theme.font.getHeight() ) / 2, Graphics.TOP | Graphics.LEFT );
       if ( isHeader ) {
         g.drawImage( isCollapsed ? _plus : minus, objX + Theme.upSize + 1, objY + 1 + ( itemHeight - _plus.getHeight() ) / 2, Graphics.TOP | Graphics.LEFT );
@@ -311,16 +264,6 @@ public class Group implements GObject {
         }
       }
     }
-  }
-
-  public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public void setSize( int width, int height ) {
-    this.width = width;
-    this.height = height;
   }
 
   public void keyPressed( int keyCode ) {
@@ -365,9 +308,9 @@ public class Group implements GObject {
       }
     }
     if ( Screen.getExtGameAct( keyCode ) == Screen.FIRE && selectedRealGroup != -1 ) {
-      tempGroupHeader = ( GroupHeader ) getElement( selectedRealGroup );
+      tempGroupHeader = (GroupHeader) getElement( selectedRealGroup );
       if ( selectedRealIndex != -1 ) {
-        tempGroupChild = ( GroupChild ) tempGroupHeader.childs.elementAt( selectedRealIndex );
+        tempGroupChild = (GroupChild) tempGroupHeader.childs.elementAt( selectedRealIndex );
         if ( actionPerformedEvent != null ) {
           actionPerformedEvent.actionPerformed( tempGroupChild );
         }
@@ -401,9 +344,9 @@ public class Group implements GObject {
       isScrollAction = false;
       if ( isSelectedState && selectedRealGroup != -1 ) {
         if ( selectedRow == ( yOffset + y - this.y ) / itemHeight && selectedColumn == columnCount * x / ( width - Theme.scrollWidth ) ) {
-          tempGroupHeader = ( GroupHeader ) getElement( selectedRealGroup );
+          tempGroupHeader = (GroupHeader) getElement( selectedRealGroup );
           if ( selectedRealIndex != -1 ) {
-            tempGroupChild = ( GroupChild ) tempGroupHeader.childs.elementAt( selectedRealIndex );
+            tempGroupChild = (GroupChild) tempGroupHeader.childs.elementAt( selectedRealIndex );
             if ( actionPerformedEvent != null ) {
               actionPerformedEvent.actionPerformed( tempGroupChild );
             }
@@ -456,32 +399,7 @@ public class Group implements GObject {
       }
       return false;
     }
-
     return true;
-  }
-
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public void setTouchOrientation( boolean touchOrientation ) {
-    if ( touchOrientation ) {
-      Theme.scrollWidth = 15;
-    } else {
-      Theme.scrollWidth = 5;
-    }
   }
 
   private boolean openRecordStore( String fileName ) {
@@ -497,7 +415,7 @@ public class Group implements GObject {
 
   public GroupHeader getElement( int index ) {
     if ( items.elementAt( index ) != null ) {
-      return ( GroupHeader ) items.elementAt( index );
+      return (GroupHeader) items.elementAt( index );
     } else if ( recordStore != null ) {
       try {
         byte[] abyte0 = recordStore.getRecord( index + 1 );
@@ -506,7 +424,6 @@ public class Group implements GObject {
         return groupHeader;
       } catch ( Throwable ex ) {
       }
-      return null;
     }
     return null;
   }

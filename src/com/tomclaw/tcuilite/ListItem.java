@@ -9,7 +9,7 @@ public class ListItem {
 
   public String title;
   public String descr;
-  public Thread thread;
+  public Runnable runnable;
   public int imageFileHash;
   public int imageIndex;
 
@@ -40,12 +40,12 @@ public class ListItem {
   }
 
   public void actionPerformed() {
-    if ( thread != null ) {
-      thread.run();
+    if ( runnable != null ) {
+      runnable.run();
     }
   }
 
-  public void setActionPerformed( Thread thread ) {
-    this.thread = thread;
+  public void setActionPerformed( Runnable runnable ) {
+    this.runnable = runnable;
   }
 }

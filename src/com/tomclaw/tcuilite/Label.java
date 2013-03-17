@@ -10,18 +10,12 @@ import javax.microedition.lcdui.Graphics;
  */
 public class Label extends PaneObject {
 
-  /** Basic **/
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
   /** Private fields **/
   private Content content;
   private boolean isTitle = false;
   private boolean isHeader = false;
   /** Colors **/
   public static int foreColor = 0x555555;
-  public static int backColor = 0xFFFFFF;
   public static int borderColor = 0xB08BF0;
   public static int focusedBackColor = 0xD3D1FF;
   public static int actOuterLight = 0xBDC7FF;
@@ -37,6 +31,7 @@ public class Label extends PaneObject {
 
   public Label( Content content ) {
     this.content = content;
+    this.content.setColor( foreColor );
     setFocusable( false );
   }
 
@@ -47,8 +42,8 @@ public class Label extends PaneObject {
       g.setColor( focusedBackColor );
       g.fillRect( x + 3, y + 3, width - 5, height - 5 );
     } else if ( isHeader ) {
-      DrawUtil.fillVerticalGradient( g, x, y, width, height, headerGradFrom,
-              headerGradTo );
+      DrawUtil.fillVerticalGradient( g, x, y, width + 1, height, 
+              headerGradFrom, headerGradTo );
       g.setColor( headerHr );
       g.drawLine( x, y + height - 1, x + width, y + height - 1 );
     }
@@ -63,8 +58,7 @@ public class Label extends PaneObject {
   }
 
   public void setLocation( int x, int y ) {
-    this.x = x;
-    this.y = y;
+    super.setLocation( x, y );
     content.setLocation( x, y );
   }
 
@@ -75,6 +69,10 @@ public class Label extends PaneObject {
       updateCaption();
     }
     this.height = getHeight();
+  }
+
+  public int getHeight() {
+    return content.getHeight();
   }
 
   public void keyPressed( int keyCode ) {
@@ -93,25 +91,6 @@ public class Label extends PaneObject {
   }
 
   public void pointerDragged( int x, int y ) {
-  }
-
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return content.getHeight();
-  }
-
-  public void setTouchOrientation( boolean touchOrientation ) {
   }
 
   public final void setCaption( String text ) {
@@ -138,12 +117,10 @@ public class Label extends PaneObject {
 
   public void setContent( Content content ) {
     this.content = content;
+    this.content.setColor( foreColor );
   }
 
   public Content getContent() {
     return content;
-  }
-
-  public void actionPerformed() {
   }
 }

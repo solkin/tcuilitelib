@@ -2,6 +2,7 @@ package com.tomclaw.tcuilite;
 
 import com.tomclaw.tcuilite.smiles.Smiles;
 import com.tomclaw.utils.DrawUtil;
+import com.tomclaw.utils.LogUtil;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 
@@ -10,25 +11,15 @@ import javax.microedition.lcdui.Graphics;
  * http://www.tomclaw.com/
  * @author Solkin
  */
-public class Grid implements GObject {
+public class Grid extends Scroll {
 
-  public String name = null;
   public Vector items = null;
   public int itemWidth = 42;
   public int itemHeight = 42;
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
-  public int yOffset = 0;
   public int focusedRow = 0;
   public int focusedColumn = 0;
   public boolean isShowGrid = false;
-  /**
-   * Runtime
-   */
-  public int prevYDrag = -1;
-  public boolean isScrollAction = false;
+  /** Runtime **/
   private int startIndex = 0;
   private int finlIndex = 0;
   private int eqvYOffset = 0;
@@ -39,46 +30,31 @@ public class Grid implements GObject {
   private int finlColumn = 0;
   private PaneObject paneObject;
   public Thread animationThread = null;
-  public int maxHeight = 0;
   public PaneObject actionObject;
   public PaneEvent actionPerformedEvent = null;
   public boolean isSelectedState = false;
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int backColor = 0xFFFFFF;
   public static int hrLine = 0xDDDDDD;
-  public static int scrollBack = 0xFFFFFF;
-  public static int scrollGradFrom = 0xDDDDDD;
-  public static int scrollGradTo = 0xAAAAAA;
-  public static int scrollBorder = 0xAAAAAA;
-  public static int scrollFix = 0x888888;
-  public static int scrollFixShadow = 0xDDDDDD;
-  /**
-   * Sizes
-   */
-  private int scrollStart;
-  private int scrollHeight;
 
-  public Grid(final Window window, boolean isAnimated) {
+  public Grid( final Window window, boolean isAnimated ) {
     items = new Vector();
+    repaintScrollWidth = Theme.scrollWidth;
     if ( isAnimated && Smiles.smilesType == 0x00 ) {
       animationThread = new Thread() {
-
         public void run() {
           while ( true ) {
             try {
               Thread.sleep( 100 );
-              if ( prevYDrag != -1 ) {
-                continue;
-              }
+              /** Checking for this object is fully on screen and there is no scrolling **/
               if ( Screen.screen.activeWindow != null && Screen.screen.activeWindow.equals( window )
                       && !Screen.screen.isSwitchMode && !Screen.screen.isSlideMode
                       && !Screen.screen.activeWindow.soft.isLeftPressed && !Screen.screen.activeWindow.soft.isRightPressed
-                      && Screen.screen.activeWindow.dialog == null ) {
+                      && Screen.screen.activeWindow.dialog == null && prevYDrag == -1 ) {
                 Screen.screen.repaint( Screen.REPAINT_STATE_SMILE );
               }
             } catch ( Throwable ex ) {
+              LogUtil.outMessage( "Grid animation exception", true );
             }
           }
         }
@@ -88,23 +64,19 @@ public class Grid implements GObject {
     }
   }
 
-  public void repaint(Graphics g) {
+  public void repaint( Graphics g ) {
     repaint( g, 0, 0 );
   }
 
-  public void repaint(Graphics g, int paintX, int paintY) {
+  public void repaint( Graphics g, int paintX, int paintY ) {
     if ( g != null ) {
       g.setFont( Theme.font );
       g.setColor( backColor );
       g.fillRect( paintX + x, paintY + y, width, height );
       g.setColor( hrLine );
     }
-
-    columns = ( int ) ( ( width - Theme.scrollWidth ) / itemWidth );
-    rows = ( int ) ( height / itemHeight );
-
-    startIndex = -1;
-    finlIndex = -1;
+    columns = ( width - Theme.scrollWidth ) / itemWidth;
+    rows = height / itemHeight;
     eqvYOffset = yOffset % itemHeight;
     xStart = ( width - Theme.scrollWidth ) % itemWidth;
     if ( g != null && isShowGrid ) {
@@ -115,14 +87,13 @@ public class Grid implements GObject {
         g.drawLine( paintX + xStart / 2, pY, paintX + width - Theme.scrollWidth - xStart / 2, pY );
       }
     }
-    startIndex = ( ( int ) ( yOffset / itemHeight ) ) * ( columns );
+    startIndex = ( (int) ( yOffset / itemHeight ) ) * ( columns );
     finlIndex = startIndex + Math.min( columns * ( rows + 2 ), items.size() - startIndex );
-
     for ( int c = startIndex; c < finlIndex; c++ ) {
-      paneObject = ( PaneObject ) items.elementAt( c );
-      paneObject.setLocation( paintX + x + xStart / 2 + c % columns * itemWidth, paintY + y - eqvYOffset + ( ( int ) ( ( c - startIndex ) / columns ) ) * itemHeight );
+      paneObject = (PaneObject) items.elementAt( c );
+      paneObject.setLocation( paintX + x + xStart / 2 + c % columns * itemWidth, paintY + y - eqvYOffset + ( (int) ( ( c - startIndex ) / columns ) ) * itemHeight );
       if ( c % columns == focusedColumn
-              && ( ( int ) ( c / columns ) ) == focusedRow ) {
+              && ( (int) ( c / columns ) ) == focusedRow ) {
         paneObject.setFocused( true );
       } else {
         paneObject.setFocused( false );
@@ -133,44 +104,13 @@ public class Grid implements GObject {
       }
     }
     finlColumn = ( finlIndex - 1 ) % columns;
-    finlRow = ( ( int ) ( ( finlIndex - 1 ) / columns ) );
-    maxHeight = ( ( items.size() - 1 ) / columns + 1 ) * itemHeight;
-    /**
-     * Scroll
-     */
-    if ( Theme.scrollWidth > 0 && !items.isEmpty() ) {
-      g.setColor( scrollBack );
-      g.fillRect( paintX + x + width - Theme.scrollWidth, paintY + y, Theme.scrollWidth, height );
-      if ( maxHeight > height ) {
-        scrollStart = height * yOffset / maxHeight;
-        scrollHeight = height * height / maxHeight;
-        DrawUtil.fillHorizontalGradient( g, paintX + x + width - Theme.scrollWidth, paintY + y + scrollStart, Theme.scrollWidth, scrollHeight, scrollGradFrom, scrollGradTo );
-        if ( scrollHeight > 6 ) {
-          g.setColor( scrollFixShadow );
-          g.fillRect( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 1, Theme.scrollWidth - 2, 5 );
-          g.setColor( scrollFix );
-          g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 - 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 - 2 );
-          g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 );
-          g.drawLine( paintX + x + width - Theme.scrollWidth + 1, paintY + y + scrollStart + scrollHeight / 2 + 2, paintX + x + width - 2, paintY + y + scrollStart + scrollHeight / 2 + 2 );
-        }
-      }
-      g.setColor( scrollBorder );
-      g.drawRect( paintX + x + width - Theme.scrollWidth - 1, paintY + y + height * yOffset / maxHeight, Theme.scrollWidth, height * height / maxHeight );
-      g.drawLine( paintX + x + width - Theme.scrollWidth - 1, paintY + y, paintX + x + width - Theme.scrollWidth - 1, paintY + y + height - 1 );
-    }
+    finlRow = ( (int) ( ( finlIndex - 1 ) / columns ) );
+    totalHeight = ( ( items.size() - 1 ) / columns + 1 ) * itemHeight;
+    /** Scroll **/
+    super.repaint( g, paintX, paintY );
   }
 
-  public void setLocation(int x, int y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  public void setSize(int width, int height) {
-    this.width = width;
-    this.height = height;
-  }
-
-  public void keyPressed(int keyCode) {
+  public void keyPressed( int keyCode ) {
     if ( Screen.getExtGameAct( keyCode ) == Screen.UP ) {
       focusedRow--;
     } else if ( Screen.getExtGameAct( keyCode ) == Screen.DOWN ) {
@@ -181,7 +121,7 @@ public class Grid implements GObject {
       focusedColumn++;
     } else {
       if ( !items.isEmpty() ) {
-        actionObject = ( PaneObject ) items.elementAt( focusedColumn + columns * focusedRow );
+        actionObject = (PaneObject) items.elementAt( focusedColumn + columns * focusedRow );
       } else {
         actionObject = null;
       }
@@ -195,14 +135,14 @@ public class Grid implements GObject {
     checkFocus();
   }
 
-  public void keyReleased(int keyCode) {
+  public void keyReleased( int keyCode ) {
   }
 
-  public void keyRepeated(int keyCode) {
+  public void keyRepeated( int keyCode ) {
     keyPressed( keyCode );
   }
 
-  public void pointerPressed(int x, int y) {
+  public void pointerPressed( int x, int y ) {
     actionObject = null;
     if ( items.isEmpty() ) {
       return;
@@ -215,7 +155,7 @@ public class Grid implements GObject {
     } else {
       isScrollAction = false;
       if ( ( x - this.x ) / itemWidth + columns * ( ( y + yOffset - this.y ) / itemHeight ) < items.size() ) {
-        actionObject = ( PaneObject ) items.elementAt( ( x - this.x ) / itemWidth + columns * ( ( y + yOffset - this.y ) / itemHeight ) );
+        actionObject = (PaneObject) items.elementAt( ( x - this.x ) / itemWidth + columns * ( ( y + yOffset - this.y ) / itemHeight ) );
 
         setFocusedRowColomn( ( ( y + yOffset - this.y ) / itemHeight ),
                 ( x - this.x ) / itemWidth );
@@ -232,7 +172,7 @@ public class Grid implements GObject {
     }
   }
 
-  public void pointerReleased(int x, int y) {
+  public void pointerReleased( int x, int y ) {
     prevYDrag = -1;
     if ( items.isEmpty() ) {
       return;
@@ -243,26 +183,26 @@ public class Grid implements GObject {
     }
   }
 
-  public boolean pointerDragged(int x, int y) {
+  public boolean pointerDragged( int x, int y ) {
     if ( actionObject != null ) {
       actionObject.pointerDragged( x, y );
       actionObject = null;
     }
-    if ( items.isEmpty() || maxHeight < height ) {
+    if ( items.isEmpty() || totalHeight < height ) {
       return false;
     }
     if ( isScrollAction ) {
       scrollStart = y - this.y - scrollHeight / 2;
-      yOffset = scrollStart * maxHeight / height;
+      yOffset = scrollStart * totalHeight / height;
       if ( yOffset < 0 ) {
         yOffset = 0;
-      } else if ( yOffset > maxHeight - height ) {
-        yOffset = maxHeight - height;
+      } else if ( yOffset > totalHeight - height ) {
+        yOffset = totalHeight - height;
       } else {
         return true;
       }
       return false;
-    } else if ( maxHeight > height ) {
+    } else if ( totalHeight > height ) {
       if ( prevYDrag == -1 ) {
         prevYDrag = yOffset + y;
         return true;
@@ -270,8 +210,8 @@ public class Grid implements GObject {
       yOffset = prevYDrag - y;
       if ( yOffset < 0 ) {
         yOffset = 0;
-      } else if ( yOffset > maxHeight - height ) {
-        yOffset = maxHeight - height;
+      } else if ( yOffset > totalHeight - height ) {
+        yOffset = totalHeight - height;
       } else {
         return true;
       }
@@ -280,27 +220,8 @@ public class Grid implements GObject {
     return true;
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public void addItem(PaneObject paneObject) {
+  public void addItem( PaneObject paneObject ) {
     items.addElement( paneObject );
-  }
-
-  public void setTouchOrientation(boolean touchOrientation) {
   }
 
   public void checkFocus() {
@@ -330,16 +251,16 @@ public class Grid implements GObject {
     if ( yOffset < 0 ) {
       yOffset = 0;
     }
-    if ( yOffset > ( ( int ) ( items.size() / columns ) + 1 ) * itemHeight - height + 1 ) {
-      if ( ( ( int ) ( items.size() / columns ) + 1 ) * itemHeight - height + 1 > 0 ) {
-        yOffset = ( ( int ) ( items.size() / columns ) + 1 ) * itemHeight - height + 1;
+    if ( yOffset > ( (int) ( items.size() / columns ) + 1 ) * itemHeight - height + 1 ) {
+      if ( ( (int) ( items.size() / columns ) + 1 ) * itemHeight - height + 1 > 0 ) {
+        yOffset = ( (int) ( items.size() / columns ) + 1 ) * itemHeight - height + 1;
       } else {
         yOffset = 0;
       }
     }
   }
 
-  private void setFocusedRowColomn(int focusedRow, int focusedColumn) {
+  private void setFocusedRowColomn( int focusedRow, int focusedColumn ) {
     if ( focusedRow != this.focusedRow || focusedColumn != this.focusedColumn ) {
       this.focusedRow = focusedRow;
       this.focusedColumn = focusedColumn;

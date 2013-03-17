@@ -13,37 +13,23 @@ import javax.microedition.lcdui.Graphics;
 public class ChatItem extends PaneObject {
 
   public String text = "";
-  public int x = 0;
-  public int y = 0;
-  public int width = 0;
-  public int height = 0;
-  /**
-   * Runtime
-   */
+  /** Runtime **/
   public Pane pane;
   public BBResult bbResult;
-  /**
-   * Colors
-   */
+  /** Colors **/
   public static int foreColor = 0x555555;
   public static int titleColor = 0x424142;
-  public static int backColor = 0xFFFFFF;
   public static int borderColor = 0x7B86DA;
   public static int actOuterLight = 0xBDC7FF;
   public static int actInnerLight = 0x8C9AFF;
-  /**
-   * Sizes
-   */
+  /** Sizes **/
   public int interlineheight = 2;
   private int imageOffset = 0;
-  /**
-   * Chat item specific data
-   */
+  /** Chat item specific data **/
   public String buddyId = null;
   public String buddyNick = null;
   public String itemDateTime = null;
   public int itemType = 0x00;
-  public String[] links = null;
   /**
    * 0x00 - plain message 0x01 - hyperlink 0x02 - auth message 0x03 - info (any)
    * 0x04 - error (any) 0x06 - file
@@ -69,7 +55,8 @@ public class ChatItem extends PaneObject {
     updateCaption();
   }
 
-  public ChatItem( Pane pane, String buddyId, String buddyNick, String itemDateTime, int itemType, String text ) {
+  public ChatItem( Pane pane, String buddyId, String buddyNick,
+          String itemDateTime, int itemType, String text ) {
     this.pane = pane;
     this.buddyId = buddyId;
     this.buddyNick = buddyNick;
@@ -91,23 +78,32 @@ public class ChatItem extends PaneObject {
         /** Drawing chat item image **/
         imageOffset = Splitter.drawImage( g, Settings.CHAT_IMAGE_GROUP_FILE,
                 ( ( ( itemType == TYPE_PLAIN_MSG
-                ? ( itemType + dlvStatus ) : itemType ) ) ), x + 2 + Theme.upSize, y + 2 + Theme.upSize, false ) + Theme.upSize;
+                ? ( itemType + dlvStatus ) : itemType ) ) ),
+                x + 2 + Theme.upSize,
+                y + 2 + Theme.upSize, false ) + Theme.upSize;
       }
       g.setColor( borderColor );
-      g.drawLine( x + 2 + Theme.upSize + imageOffset, y + 2 + Theme.upSize + Math.max( Theme.titleFont.getHeight(), Theme.font.getHeight() ),
-              x + width - 2 - Theme.upSize, y + 2 + Theme.upSize + Math.max( Theme.titleFont.getHeight(), Theme.font.getHeight() ) );
+      g.drawLine( x + 2 + Theme.upSize + imageOffset, y + 2 + Theme.upSize
+              + Math.max( Theme.titleFont.getHeight(), Theme.font.getHeight() ),
+              x + width - 2 - Theme.upSize, y + 2 + Theme.upSize
+              + Math.max( Theme.titleFont.getHeight(), Theme.font.getHeight() ) );
       g.setFont( Theme.titleFont );
       g.setColor( titleColor );
 
-      g.drawString( buddyNick, x + imageOffset + 2 + Theme.upSize, y + 2 + Theme.upSize, Graphics.TOP | Graphics.LEFT );
+      g.drawString( buddyNick, x + imageOffset + 2 + Theme.upSize, y + 2
+              + Theme.upSize, Graphics.TOP | Graphics.LEFT );
       g.setFont( Theme.font );
-      g.drawString( itemDateTime, x + width - Theme.upSize - Theme.font.stringWidth( itemDateTime ), y + 2 + Theme.upSize, Graphics.TOP | Graphics.LEFT );
+      g.drawString( itemDateTime, x + width - Theme.upSize
+              - Theme.font.stringWidth( itemDateTime ), y + 2 + Theme.upSize,
+              Graphics.TOP | Graphics.LEFT );
       g.setColor( foreColor );
     }
 
     if ( g != null ) {
       for ( int c = 0; c < bbResult.bbStyleString.length; c++ ) {
-        bbResult.bbStyleString[c].paint( g, x + 2 + Theme.upSize, y + ( Theme.titleFont.getHeight() + Theme.upSize * 2 ) + 2 + Theme.upSize );
+        bbResult.bbStyleString[c].paint( g, x + 2 + Theme.upSize,
+                y + ( Theme.titleFont.getHeight() + Theme.upSize * 2 )
+                + 2 + Theme.upSize );
       }
     }
   }
@@ -145,25 +141,6 @@ public class ChatItem extends PaneObject {
   public void pointerDragged( int x, int y ) {
   }
 
-  public int getX() {
-    return x;
-  }
-
-  public int getY() {
-    return y;
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public void setTouchOrientation( boolean touchOrientation ) {
-  }
-
   public final void setCaption( String text ) {
     this.text = text;
     updateCaption();
@@ -172,20 +149,19 @@ public class ChatItem extends PaneObject {
   public final void updateCaption() {
     if ( width != 0 ) {
       try {
+        /** Pray for BB tags to be well-formed **/
         bbResult = BBUtil.processText( text, 0, 0,
-                width - ( Theme.upSize + 4 ) * 2 );
+                width - ( Theme.upSize + 4 ) * 2, foreColor );
         height = ( Theme.titleFont.getHeight() + Theme.upSize * 2 )
                 + 2 + Theme.upSize
                 + bbResult.height + 2;
       } catch ( Throwable ex1 ) {
+        /** BB format was incorrect **/
       }
     }
   }
 
   public String getStringValue() {
     return text;
-  }
-
-  public void actionPerformed() {
   }
 }

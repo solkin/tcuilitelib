@@ -18,6 +18,7 @@ public class RichContent implements Content {
   public int height = 0;
   /** Private fields **/
   public BBResult bbResult;
+  private int color;
   /** Sizes **/
   public int interlineheight = 2;
   
@@ -29,6 +30,11 @@ public class RichContent implements Content {
     this.text = text;
     update();
   }
+  
+  public void setColor(int color) {
+    this.color = color;
+    update();
+  }
 
   public String getText() {
     return text;
@@ -38,7 +44,7 @@ public class RichContent implements Content {
     if ( width != 0 ) {
       try {
         bbResult = BBUtil.processText( text, 0, 0,
-                width - ( Theme.upSize + 4 ) * 2 );
+                width - ( Theme.upSize + 4 ) * 2, color );
         height = 2 * 2 + bbResult.height;
       } catch ( Throwable ex1 ) {
       }
