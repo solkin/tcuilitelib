@@ -4,6 +4,7 @@ import com.tomclaw.utils.DrawUtil;
 import com.tomclaw.utils.StringUtil;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.game.Sprite;
 
 /**
  * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
@@ -39,8 +40,8 @@ public final class Dialog {
   /** Runtime **/
   private int boldFontHeight;
   private int textFontHeight;
-  private static Image c1, c2, c3, c4;
-  private Image s1, s2, s3, s4;
+  private static Image shadowCorner;
+  private Image shadowHorizontal, shadowVertical;
   private Image back;
 
   public Dialog( Screen screen, Soft soft, String title, String message ) {
@@ -60,17 +61,16 @@ public final class Dialog {
       }
       soft.paint( g, 0, 0 );
     }
-    if ( Settings.DIALOG_DRAW_ALPHABACK ) {
-      // g.drawRGB( rgbData, 0, width, x, y + yOffset, width, height, true );
-      g.drawImage( c1, x - shadowSize, y - shadowSize + yOffset, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( c2, x + width, y - shadowSize + yOffset, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( c3, x + width, y + height + yOffset, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( c4, x - shadowSize, y + height + yOffset, Graphics.TOP | Graphics.LEFT );
+    if ( Settings.DIALOG_DRAW_ALPHABACK && checkCache() ) {
+      g.drawImage( shadowCorner, x - shadowSize, y - shadowSize + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowCorner, 0, 0, shadowSize, shadowSize, Sprite.TRANS_MIRROR, x + width, y - shadowSize + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowCorner, 0, 0, shadowSize, shadowSize, Sprite.TRANS_MIRROR_ROT90, x + width, y + height + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowCorner, 0, 0, shadowSize, shadowSize, Sprite.TRANS_MIRROR_ROT180, x - shadowSize, y + height + yOffset, Graphics.TOP | Graphics.LEFT );
 
-      g.drawImage( s1, x - shadowSize, y + yOffset, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s2, x, y - shadowSize + yOffset, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s3, x + width, y + yOffset, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s4, x, y + height + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawImage( shadowVertical, x - shadowSize, y + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawImage( shadowHorizontal, x, y - shadowSize + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowVertical, 0, 0, shadowSize, height, Sprite.TRANS_MIRROR, x + width, y + yOffset, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowHorizontal, 0, 0, width, shadowSize, Sprite.TRANS_MIRROR_ROT180, x, y + height + yOffset, Graphics.TOP | Graphics.LEFT );
 
       g.drawImage( back, x, y + yOffset, Graphics.TOP | Graphics.LEFT );
     } else {
@@ -78,9 +78,9 @@ public final class Dialog {
       g.fillRect( x, y + yOffset, width, height );
     }
     g.setColor( hrLineColor );
-    g.drawLine( x + Theme.upSize, y + yOffset + boldFontHeight + Theme.upSize * 2, x + width - Theme.upSize * 2 /*- shadowSize * 2*/, y + yOffset + boldFontHeight + Theme.upSize * 2 );
+    g.drawLine( x + Theme.upSize, y + yOffset + boldFontHeight + Theme.upSize * 2, x + width - Theme.upSize * 2, y + yOffset + boldFontHeight + Theme.upSize * 2 );
     g.setColor( hrLineShadow );
-    g.drawLine( x + Theme.upSize, y + yOffset + boldFontHeight + Theme.upSize * 2 + 1, x + width - Theme.upSize * 2 /*- shadowSize * 2*/, y + yOffset + boldFontHeight + Theme.upSize * 2 + 1 );
+    g.drawLine( x + Theme.upSize, y + yOffset + boldFontHeight + Theme.upSize * 2 + 1, x + width - Theme.upSize * 2, y + yOffset + boldFontHeight + Theme.upSize * 2 + 1 );
 
     g.setColor( titleColor );
     g.setFont( Theme.titleFont );
@@ -89,7 +89,7 @@ public final class Dialog {
     clipY = y + yOffset + ( boldFontHeight + Theme.upSize * 2 + 1 ) + 2 + Theme.upSize;
     clipX = x + 2 + Theme.upSize;
     clipW = width;
-    clipH = height - Theme.upSize /*- shadowSize * 2*/ - clipY + y + yOffset;
+    clipH = height - Theme.upSize - clipY + y + yOffset;
     g.setClip( clipX, clipY, clipW, clipH );
     g.setColor( textColor );
     for ( int c = textOffset / ( textFontHeight + interlineheight ); c < Math.min( strings.length, ( textOffset + clipH ) / ( textFontHeight + interlineheight ) + 1 ); c++ ) {
@@ -111,17 +111,12 @@ public final class Dialog {
       this.height = textFontHeight + Theme.upSize * 2 + 4 + ( strings.length - 1 ) * ( textFontHeight + interlineheight ) + ( boldFontHeight + Theme.upSize * 2 + 1 );
     }
     if ( Settings.DIALOG_DRAW_ALPHABACK ) {
-      if(c1 == null || c2 == null || c3 == null || c4==null){
-      c1 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 0 );
-      c2 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 1 );
-      c3 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 2 );
-      c4 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 3 );
+      if ( shadowCorner == null ) {
+        shadowCorner = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 0 );
       }
 
-      s1 = DrawUtil.drawShadow( shadowColor | shadowIndex, shadowSize, this.height, 0 );
-      s2 = DrawUtil.drawShadow( shadowColor | shadowIndex, this.width, shadowSize, 1 );
-      s3 = DrawUtil.drawShadow( shadowColor | shadowIndex, shadowSize, this.height, 2 );
-      s4 = DrawUtil.drawShadow( shadowColor | shadowIndex, this.width, shadowSize, 3 );
+      shadowVertical = DrawUtil.drawShadow( shadowColor | shadowIndex, shadowSize, this.height, 0 );
+      shadowHorizontal = DrawUtil.drawShadow( shadowColor | shadowIndex, this.width, shadowSize, 1 );
 
       back = DrawUtil.fillShadow( alphaBackColor | alphaBackIndex, this.width, this.height );
     }
@@ -191,11 +186,20 @@ public final class Dialog {
       textOffset = 0;
       return false;
     } else if ( textOffset > strings.length * ( textFontHeight + interlineheight )
-            - ( height - Theme.upSize * 2 /*- shadowSize * 2*/ - ( boldFontHeight + Theme.upSize * 2 + 1 ) - 2 ) ) {
+            - ( height - Theme.upSize * 2 - ( boldFontHeight + Theme.upSize * 2 + 1 ) - 2 ) ) {
       textOffset = strings.length * ( textFontHeight + interlineheight )
-              - ( height - Theme.upSize * 2 /*- shadowSize * 2*/ - ( boldFontHeight + Theme.upSize * 2 + 1 ) - 2 );
+              - ( height - Theme.upSize * 2 - ( boldFontHeight + Theme.upSize * 2 + 1 ) - 2 );
       return false;
     }
     return true;
+  }
+  
+  public static void clearCache() {
+    shadowCorner = null;
+  }
+  
+  private boolean checkCache() {
+    return shadowCorner != null && shadowVertical != null 
+            && shadowHorizontal != null  && back != null;
   }
 }

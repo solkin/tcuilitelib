@@ -63,7 +63,7 @@ public class Theme {
    */
   public static int[] loadTheme( String resDatFile ) {
     try {
-      return loadTheme( getInputStream(resDatFile) );
+      return loadTheme( getInputStream( resDatFile ) );
     } catch ( Throwable ex ) {
       return null;
     }
@@ -76,7 +76,7 @@ public class Theme {
    */
   public static String loadTitle( String resDatFile ) {
     try {
-      return loadTitle( getInputStream(resDatFile) );
+      return loadTitle( getInputStream( resDatFile ) );
     } catch ( Throwable ex ) {
       return null;
     }
@@ -340,6 +340,13 @@ public class Theme {
     for ( int c = 0; c < count; c++ ) {
       offset = readBlock( offset, theme );
     }
+    /** Clearing shadows cache **/
+    clearCache();
+  }
+
+  public static void clearCache() {
+    Dialog.clearCache();
+    Popup.clearCache();
   }
 
   public static boolean startThemeChange( final String theme_fr, final String theme_to ) {

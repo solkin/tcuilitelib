@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Vector;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.game.Sprite;
 
 /**
  * Solkin Igor Viktorovich, TomClaw Software, 2003-2013
@@ -21,8 +22,8 @@ public class Popup extends Scroll {
   /** Runtime **/
   public int startIndex;
   public boolean t_wasDrawFlag = false;
-  private static Image c1, c2, c3, c4;
-  private Image s1, s2, s3, s4;
+  private static Image shadowCorner;
+  private Image shadowHorizontal, shadowVertical;
   private Image back;
   /** Colors **/
   public static int foreColor = 0x000000;
@@ -67,21 +68,22 @@ public class Popup extends Scroll {
   }
 
   public void repaintBackground( Graphics g, int paintX, int paintY ) {
-    if ( Settings.MENU_DRAW_SHADOWS ) {
-      g.drawImage( c1, x - shadowSize, y - shadowSize, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( c2, x + width + 1, y - shadowSize, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( c3, x + width + 1, y + height, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( c4, x - shadowSize, y + height, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s1, x - shadowSize, y, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s2, x, y - shadowSize, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s3, x + width + 1, y, Graphics.TOP | Graphics.LEFT );
-      g.drawImage( s4, x, y + height, Graphics.TOP | Graphics.LEFT );
+    if ( Settings.MENU_DRAW_SHADOWS && checkCache() ) {
+      g.drawImage( shadowCorner, x - shadowSize, y - shadowSize, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowCorner, 0, 0, shadowSize, shadowSize, Sprite.TRANS_MIRROR, x + width + 1, y - shadowSize, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowCorner, 0, 0, shadowSize, shadowSize, Sprite.TRANS_MIRROR_ROT90, x + width + 1, y + height, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowCorner, 0, 0, shadowSize, shadowSize, Sprite.TRANS_MIRROR_ROT180, x - shadowSize, y + height, Graphics.TOP | Graphics.LEFT );
+
+      g.drawImage( shadowVertical, x - shadowSize, y, Graphics.TOP | Graphics.LEFT );
+      g.drawImage( shadowHorizontal, x, y - shadowSize, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowVertical, 0, 0, shadowSize, height, Sprite.TRANS_MIRROR, x + width + 1, y, Graphics.TOP | Graphics.LEFT );
+      g.drawRegion( shadowHorizontal, 0, 0, width + 1, shadowSize, Sprite.TRANS_MIRROR_ROT180, x, y + height, Graphics.TOP | Graphics.LEFT );
     }
     if ( Settings.MENU_DRAW_ALPHABACK ) {
       g.drawImage( back, x, y, Graphics.TOP | Graphics.LEFT );
     } else {
-      DrawUtil.fillVerticalGradient( g, paintX + x + 1, paintY + y + 1, 
-              width - 1 - repaintScrollWidth, height - 1, 
+      DrawUtil.fillVerticalGradient( g, paintX + x + 1, paintY + y + 1,
+              width - 1 - repaintScrollWidth, height - 1,
               backGradFrom, backGradTo );
       g.setColor( scrollBorder );
       g.drawRect( paintX + x, paintY + y, width, height - 1 );
@@ -124,7 +126,7 @@ public class Popup extends Scroll {
         g.setColor( foreColor );
       }
       if ( c < items.size() ) {
-        templistItem = ( PopupItem ) items.elementAt( c );
+        templistItem = (PopupItem) items.elementAt( c );
         if ( templistItem.imageFileHash != 0 ) {
           imageOffset = Splitter.drawImage( g, templistItem.imageFileHash, templistItem.imageIndex, paintX + x + Theme.upSize + 1, paintY + y + c * itemHeight - yOffset + itemHeight / 2, true );
           if ( imageOffset > 0 ) {
@@ -183,17 +185,12 @@ public class Popup extends Scroll {
   public void prepareBackground() {
     /** Shadows **/
     if ( Settings.MENU_DRAW_SHADOWS ) {
-      if ( c1 == null || c2 == null || c3 == null || c4 == null ) {
-        c1 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 0 );
-        c2 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 1 );
-        c3 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 2 );
-        c4 = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 3 );
+      if ( shadowCorner == null ) {
+        shadowCorner = DrawUtil.drawCornerShadow( shadowColor | shadowIndex, shadowSize, shadowSize, 0 );
       }
 
-      s1 = DrawUtil.drawShadow( shadowColor | shadowIndex, shadowSize, this.height, 0 );
-      s2 = DrawUtil.drawShadow( shadowColor | shadowIndex, this.width + 1, shadowSize, 1 );
-      s3 = DrawUtil.drawShadow( shadowColor | shadowIndex, shadowSize, this.height, 2 );
-      s4 = DrawUtil.drawShadow( shadowColor | shadowIndex, this.width + 1, shadowSize, 3 );
+      shadowVertical = DrawUtil.drawShadow( shadowColor | shadowIndex, shadowSize, this.height, 0 );
+      shadowHorizontal = DrawUtil.drawShadow( shadowColor | shadowIndex, this.width + 1, shadowSize, 1 );
     }
     if ( Settings.MENU_DRAW_ALPHABACK ) {
       back = DrawUtil.fillShadow( alphaBackColor | alphaBackIndex, this.width + 1, this.height );
@@ -209,29 +206,29 @@ public class Popup extends Scroll {
     int tempImageSize;
     for ( int c = 0; c < items.size(); c++ ) {
       tempImageSize = 0;
-      if ( ( ( PopupItem ) items.elementAt( c ) ).imageFileHash != 0 ) {
+      if ( ( (PopupItem) items.elementAt( c ) ).imageFileHash != 0 ) {
         try {
-          tempImageSize = Splitter.getImageGroup( ( ( PopupItem ) items.elementAt( c ) ).imageFileHash ).size + Theme.upSize;
+          tempImageSize = Splitter.getImageGroup( ( (PopupItem) items.elementAt( c ) ).imageFileHash ).size + Theme.upSize;
         } catch ( NullPointerException ex ) {
         }
       }
-      if ( Theme.font.stringWidth( ( ( PopupItem ) items.elementAt( c ) ).title )
-              + Theme.upSize * 2 + 4 + ( ( ( PopupItem ) items.elementAt( c ) ).isEmpty()
+      if ( Theme.font.stringWidth( ( (PopupItem) items.elementAt( c ) ).title )
+              + Theme.upSize * 2 + 4 + ( ( (PopupItem) items.elementAt( c ) ).isEmpty()
               ? 0 : ( popup.getWidth() + Theme.upSize ) ) + tempImageSize > width ) {
-        width = Theme.font.stringWidth( ( ( PopupItem ) items.elementAt( c ) ).title )
-                + Theme.upSize * 2 + 4 + ( ( ( PopupItem ) items.elementAt( c ) ).isEmpty()
+        width = Theme.font.stringWidth( ( (PopupItem) items.elementAt( c ) ).title )
+                + Theme.upSize * 2 + 4 + ( ( (PopupItem) items.elementAt( c ) ).isEmpty()
                 ? 0 : ( popup.getWidth() + Theme.upSize ) ) + tempImageSize;
       }
     }
     if ( height + shadowSize > maxHeight ) {
       height = itemHeight * ( ( maxHeight - shadowSize ) / itemHeight );
       width += Theme.scrollWidth;
-      if ( o_width != width || o_height != height ) {
+      if ( o_width != width || o_height != height || !checkCache() ) {
         prepareBackground();
       }
       return true;
     }
-    if ( o_width != width || o_height != height ) {
+    if ( o_width != width || o_height != height || !checkCache() ) {
       prepareBackground();
     }
     return false;
@@ -312,8 +309,8 @@ public class Popup extends Scroll {
 
   public void pointerReleased( int x, int y ) {
     if ( t_wasDrawFlag == false && selectedIndex != -1 && selectedIndex < items.size() ) {
-      if ( ( ( PopupItem ) items.elementAt( selectedIndex ) ).isEmpty() ) {
-        ( ( PopupItem ) items.elementAt( selectedIndex ) ).actionPerformed();
+      if ( ( (PopupItem) items.elementAt( selectedIndex ) ).isEmpty() ) {
+        ( (PopupItem) items.elementAt( selectedIndex ) ).actionPerformed();
         soft.isLeftPressed = false;
         soft.isRightPressed = false;
       }
@@ -355,5 +352,14 @@ public class Popup extends Scroll {
       return false;
     }
     return true;
+  }
+  
+  public static void clearCache() {
+    shadowCorner = null;
+  }
+  
+  private boolean checkCache() {
+    return shadowCorner != null && shadowVertical != null 
+            && shadowHorizontal != null;
   }
 }

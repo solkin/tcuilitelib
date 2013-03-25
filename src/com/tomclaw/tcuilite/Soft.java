@@ -239,7 +239,7 @@ public class Soft {
    * Tool methods
    */
   public void addPopupToActive( PopupItem parentPopup ) {
-    /** Expanding method invokation **/
+    /** Expanding method invocation **/
     parentPopup.expandPerformed();
     /** Obtain sub popup item **/
     Popup popup = parentPopup.subPopup;
